@@ -48,29 +48,6 @@
       font-size: 20px;
       margin-bottom: 20px;
     }
-
-    /* Button styling */
-    #submitButton {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #submitButton:hover {
-      background-color: #45a049;
-    }
-
-    #submitButton:focus {
-      outline: none;
-    }
-
-    #submitButton:active {
-      background-color: #3e8e41;
-    }
   </style>
 </head>
 <body>
@@ -78,77 +55,78 @@
     <label for="addressInput">Enter Address:</label>
     <input type="text" id="addressInput" placeholder="2600 16th St, Sacramento, CA">
 
-    <!-- Add a button to submit the address -->
-    <button id="submitButton">Submit Address</button>
-
     <div id="result"></div>
   </div>
 
   <script>
     const addressInput = document.getElementById("addressInput");
     const resultDiv = document.getElementById("result");
-    const submitButton = document.getElementById("submitButton"); // Get the button element
 
-    submitButton.addEventListener("click", fetchData); // Attach the click event listener to the button
+    addressInput.addEventListener("input", fetchData);
 
     async function fetchData() {
-      const address = addressInput.value.trim();
-      if (address !== "") {
-        try {
-          const response = await fetch("/get_data", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ address })
-          });
-          const data = await response.json();
+        const address = addressInput.value.trim();
+        if (address !== "") {
+            try {
+            const response = await fetch("/get_data", {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ address })
+            });
+            const data = await response.json();
 
-          showData(data);
+            console.log(data);
 
-        } catch (error) {
-          console.error(error);
-          showData({ error: "Something went wrong" });
+            showData(data);
+
+
+            } catch (error) {
+            console.error(error);
+            showData({ error: "Something went wrong" });
+            }
+        } else {
+            resultDiv.innerHTML = `<p style="color: red;">Please enter an address</p>`;
         }
-      } else {
-        resultDiv.innerHTML = `<p style="color: red;">Please enter an address</p>`;
-      }
     }
 
     function showData(data) {
-      if (data.usgeocoder && data.usgeocoder.address_info) {
+    if (data.usgeocoder && data.usgeocoder.address_info) {
         const addressInfo = data.usgeocoder.address_info;
 
         let municipalType = "Not Found";
         if (data.usgeocoder.jurisdictions_info && data.usgeocoder.jurisdictions_info.municipal) {
-          const municipalStatus = data.usgeocoder.jurisdictions_info.municipal.municipal_status;
-          if (municipalStatus === "Match Found") {
-            municipalType = data.usgeocoder.jurisdictions_info.municipal.municipal_type;
-          }
+            const municipalStatus = data.usgeocoder.jurisdictions_info.municipal.municipal_status;
+            if (municipalStatus === "Match Found") {
+                municipalType = data.usgeocoder.jurisdictions_info.municipal.municipal_type;
+            }
         }
 
         // If municipalStatus is not "Match Found," use "county" from "address_info" as "municipal_type"
         if (municipalType === "Not Found") {
-          municipalType = addressInfo.county;
+            municipalType = addressInfo.county;
         }
 
         let html = `
-          <div id="municipal_type">Municipal Type: ${municipalType}</div>
-          <div>
+        <div id="municipal_type">Municipal Type: ${municipalType}</div>
+        <div>
             <p>Address Status: ${addressInfo.address_status || "Not Found"}</p>
             <p>Street: ${addressInfo.street || "Not Found"}</p>
             <p>City: ${addressInfo.city || "Not Found"}</p>
             <p>County: ${addressInfo.county || "Not Found"}</p>
             <p>State: ${addressInfo.state || "Not Found"}</p>
             <p>Zip Code: ${addressInfo.zip5 || "Not Found"}</p>
-          </div>
+        </div>
         `;
 
         resultDiv.innerHTML = html;
-      } else {
+    } else {
         resultDiv.innerHTML = `<p style="color: red;">Data not available or invalid address</p>`;
-      }
     }
+}
+
+
   </script>
 </body>
 </html>
