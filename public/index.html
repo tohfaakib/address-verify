@@ -130,6 +130,10 @@
         // If municipalStatus is not "Match Found," use "county" from "address_info" as "municipal_type"
         if (municipalType === "Not Found") {
           municipalType = addressInfo.county;
+
+          if (municipalType != "") {
+            municipalType += " County"
+          }
         }
 
         let html = `
