@@ -102,9 +102,9 @@
             },
             body: JSON.stringify({ address })
           });
-          const data = await response.json();
+          const all_data = await response.json();
 
-          showData(data);
+          showData(all_data);
 
         } catch (error) {
           console.error(error);
@@ -115,7 +115,9 @@
       }
     }
 
-    function showData(data) {
+    function showData(all_data) {
+      let data = all_data.usgeocoder;
+      let propertyData = all_data.melissa;
       if (data.usgeocoder && data.usgeocoder.address_info) {
         const addressInfo = data.usgeocoder.address_info;
 
@@ -146,9 +148,44 @@
             <p>State: ${addressInfo.state || "Not Found"}</p>
             <p>Zip Code: ${addressInfo.zip5 || "Not Found"}</p>
           </div>
+          
         `;
 
         resultDiv.innerHTML = html;
+
+
+        if (propertyData.TotalRecords >= 1) {
+          const propertyRecord = propertyData.Records[0];
+
+          const apn = propertyRecord.Parcel.FormattedAPN;
+          const owner = propertyRecord.PrimaryOwner.Name1Full;
+          const yearBuilt = propertyRecord.PropertyUseInfo.YearBuilt;
+          const livableSquareFeet = propertyRecord.PropertySize.AreaBuilding;
+          const lotSizeSF = propertyRecord.PropertySize.AreaLotSF;
+          const bedrooms = propertyRecord.IntRoomInfo.BedroomsCount;
+          const totalRooms = propertyRecord.IntRoomInfo.RoomsCount;
+
+          const propertyHtml = `
+            <div id="property_data">
+              <p>APN: ${apn}</p>
+              <p>Owner: ${owner}</p>
+              <p>Year Built: ${yearBuilt}</p>
+              <p>Livable Square Feet: ${livableSquareFeet}</p>
+              <p>Lot Size (SF): ${lotSizeSF}</p>
+              <p>Bedrooms: ${bedrooms}</p>
+              <p>Total Rooms: ${totalRooms}</p>
+            </div>
+          `;
+
+          // Append property data to the resultDiv
+          resultDiv.innerHTML += propertyHtml;
+        } else {
+          // Display error message if property data is not available
+          resultDiv.innerHTML += `<p style="color: red;">Property data not available</p>`;
+        }
+
+
+
       } else {
         resultDiv.innerHTML = `<p style="color: red;">Data not available or invalid address</p>`;
       }
