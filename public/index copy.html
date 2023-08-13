@@ -49,19 +49,8 @@
       margin-bottom: 20px;
     }
 
-
-    .default-button {
-      background-color: #787474;
-      color: white;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-
-    .green-button {
+    /* Button styling */
+    #submitButton {
       background-color: #4CAF50;
       color: white;
       padding: 10px 20px;
@@ -71,43 +60,17 @@
       cursor: pointer;
     }
 
-    .red-button {
-      background-color: #FF5733;
-      color: white;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+    #submitButton:hover {
+      background-color: #45a049;
     }
 
-
-    /* #submitButton:focus {
+    #submitButton:focus {
       outline: none;
     }
 
     #submitButton:active {
-      background-color: #3a3e3b;
-    } */
-
-
-  .spinner {
-    position: relative;
-    top: 2px; /* Adjust this value to control the vertical alignment */
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #333;
-    border-radius: 50%;
-    width: 12px;
-    height: 12px;
-    animation: spin 2s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-
+      background-color: #3e8e41;
+    }
   </style>
 </head>
 <body>
@@ -115,12 +78,8 @@
     <label for="addressInput">Enter Address:</label>
     <input type="text" id="addressInput" placeholder="2600 16th St, Sacramento, CA">
 
-    <button id="submitButton" class="default-button">
-      <span id="spinner" class="spinner" style="display: none;"></span>
-      Submit Address
-    </button>
-    
-
+    <!-- Add a button to submit the address -->
+    <button id="submitButton">Submit Address</button>
 
     <div id="result"></div>
   </div>
@@ -135,20 +94,6 @@
     async function fetchData() {
       const address = addressInput.value.trim();
       if (address !== "") {
-        // Disable the button and show the spinner
-        submitButton.disabled = true;
-        
-        try {
-          document.getElementById("spinner").style.display = "inline-block";
-        } catch (error) {
-          let sub_btn = document.getElementById("submitButton");
-          sub_btn.classList.remove("default-button", "green-button", "red-button");
-          sub_btn.classList.add("default-button");
-          sub_btn.innerHTML = '<span id="spinner" class="spinner" style="display: none;"></span> Submit Address'
-          document.getElementById("spinner").style.display = "inline-block";
-        }
-        
-
         try {
           const response = await fetch("/get_data", {
             method: "POST",
@@ -159,16 +104,9 @@
           });
           const all_data = await response.json();
 
-          // Enable the button and hide the spinner
-          submitButton.disabled = false;
-          document.getElementById("spinner").style.display = "none";
-
           showData(all_data);
-        } catch (error) {
-          // Enable the button and hide the spinner
-          submitButton.disabled = false;
-          document.getElementById("spinner").style.display = "none";
 
+        } catch (error) {
           console.error(error);
           showData({ error: "Something went wrong" });
         }
@@ -177,31 +115,11 @@
       }
     }
 
-
-
     function showData(all_data) {
       let data = all_data.usgeocoder;
       let propertyData = all_data.melissa;
       if (data.usgeocoder && data.usgeocoder.address_info) {
         const addressInfo = data.usgeocoder.address_info;
-
-
-        const addressStatus = addressInfo.address_status || "Not Found";
-        let buttonClass = "default-button";
-        let statusIcon = "";
-
-        if (addressStatus === "Match Found") {
-          buttonClass = "green-button";
-          statusIcon = "✔"; // Checkmark icon
-        } else {
-          buttonClass = "red-button";
-          statusIcon = "❌"; // Cross icon
-        }
-
-        submitButton.innerHTML = `${statusIcon} Submit Address`;
-        submitButton.classList.remove("default-button", "green-button", "red-button");
-        submitButton.classList.add(buttonClass);
-
 
         let municipalType = "Not Found";
         if (data.usgeocoder.jurisdictions_info && data.usgeocoder.jurisdictions_info.municipal) {
@@ -272,7 +190,6 @@
         resultDiv.innerHTML = `<p style="color: red;">Data not available or invalid address</p>`;
       }
     }
-
   </script>
 </body>
 </html>
