@@ -186,28 +186,10 @@
     }
 
 
-    function checkIfMultipleKeysExist(inputJSON) {
-        const parsedJSON = inputJSON;
-      try {
-          // const parsedJSON = JSON.parse(inputJSON);
-
-          if (parsedJSON.Records && parsedJSON.Records[0]) {
-              const recordKeys = Object.keys(parsedJSON.Records[0]);
-              return recordKeys.length > 1;
-          } else {
-              return false;
-          }
-      } catch (error) {
-          console.log("Error parsing JSON:", error);
-          return false;
-      }
-    }
-
 
     function showData(all_data) {
       let data = all_data.usgeocoder;
       let propertyData = all_data.melissa;
-      is_property_data = checkIfMultipleKeysExist(propertyData);
       if (data.usgeocoder && data.usgeocoder.address_info) {
         const addressInfo = data.usgeocoder.address_info;
 
@@ -216,7 +198,7 @@
         let buttonClass = "default-button";
         let statusIcon = "";
 
-        if (addressStatus === "Match Found" && is_property_data == true) {
+        if (addressStatus === "Match Found" && propertyData.TotalRecords >= 1) {
           buttonClass = "green-button";
           statusIcon = "✔"; // Checkmark icon
         } else {
@@ -228,9 +210,7 @@
         submitButton.classList.remove("default-button", "green-button", "red-button");
         submitButton.classList.add(buttonClass);
 
-        
-
-        if (is_property_data == true) {
+        if (propertyData.TotalRecords >= 1) {
 
           console.log("here");
           console.log(propertyData.TotalRecords);
@@ -267,31 +247,36 @@
 
           resultDiv.innerHTML = html;
 
-          const propertyRecord = propertyData.Records[0];
 
-          const apn = propertyRecord.Parcel.FormattedAPN;
-          const owner = propertyRecord.PrimaryOwner.Name1Full;
-          const yearBuilt = propertyRecord.PropertyUseInfo.YearBuilt;
-          const livableSquareFeet = propertyRecord.PropertySize.AreaBuilding;
-          const lotSizeSF = propertyRecord.PropertySize.AreaLotSF;
-          const bedrooms = propertyRecord.IntRoomInfo.BedroomsCount;
-          const totalRooms = propertyRecord.IntRoomInfo.RoomsCount;
+          if (propertyData.TotalRecords >= 1) {
+            const propertyRecord = propertyData.Records[0];
 
-          const propertyHtml = `
-            <div id="property_data">
-              <p>APN: ${apn}</p>
-              <p>Owner: ${owner}</p>
-              <p>Year Built: ${yearBuilt}</p>
-              <p>Livable Square Feet: ${livableSquareFeet}</p>
-              <p>Lot Size (SF): ${lotSizeSF}</p>
-              <p>Bedrooms: ${bedrooms}</p>
-              <p>Total Rooms: ${totalRooms}</p>
-            </div>
-          `;
+            const apn = propertyRecord.Parcel.FormattedAPN;
+            const owner = propertyRecord.PrimaryOwner.Name1Full;
+            const yearBuilt = propertyRecord.PropertyUseInfo.YearBuilt;
+            const livableSquareFeet = propertyRecord.PropertySize.AreaBuilding;
+            const lotSizeSF = propertyRecord.PropertySize.AreaLotSF;
+            const bedrooms = propertyRecord.IntRoomInfo.BedroomsCount;
+            const totalRooms = propertyRecord.IntRoomInfo.RoomsCount;
 
-          // Append property data to the resultDiv
-          resultDiv.innerHTML += propertyHtml;
+            const propertyHtml = `
+              <div id="property_data">
+                <p>APN: ${apn}</p>
+                <p>Owner: ${owner}</p>
+                <p>Year Built: ${yearBuilt}</p>
+                <p>Livable Square Feet: ${livableSquareFeet}</p>
+                <p>Lot Size (SF): ${lotSizeSF}</p>
+                <p>Bedrooms: ${bedrooms}</p>
+                <p>Total Rooms: ${totalRooms}</p>
+              </div>
+            `;
 
+            // Append property data to the resultDiv
+            resultDiv.innerHTML += propertyHtml;
+          } else {
+            // Display error message if property data is not available
+            resultDiv.innerHTML += `<p style="color: red;">Property data not available</p>`;
+          }
         } else {
           resultDiv.innerHTML = `<p style="color: red;">Data not available or invalid address</p>`;
         }
