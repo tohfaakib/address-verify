@@ -203,6 +203,20 @@
       }
     }
 
+    function formatLocation(inputText) {
+      const words = inputText.trim().split(' ');
+      const lastWord = words[words.length - 1].toLowerCase();
+
+      if (lastWord === 'city' || lastWord === 'town') {
+          const locationName = words.slice(0, -1).join(' ');
+          const formattedLocation = `${lastWord.charAt(0).toUpperCase() + lastWord.slice(1)} of ${locationName}`;
+          return formattedLocation;
+      } else {
+          return inputText;
+      }
+  }
+
+
 
     function showData(all_data) {
       let data = all_data.usgeocoder;
@@ -249,6 +263,8 @@
               municipalType += " County"
             }
           }
+
+          municipalType = formatLocation(municipalType);
 
           const melissaGlobalRecord = melissa_global.Records[0];
 
