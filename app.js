@@ -30,7 +30,17 @@ app.post('/get_data', async (req, res) => {
 
     console.log("property:", property_res.data);
 
-    const melissa_global_url = 'https://address.melissadata.net/v3/WEB/GlobalAddress/doGlobalAddress?id=biSxhdpkI8-4KVqfEHnJ_H**nSAcwXpxhQ0PC2lXxuDAZ-**&a1=3208 Berkshire Way&loc=Sacramento&ctry=USA&admarea=CA&format=json'
+    const parsedAddress = parseAddress(address);
+    const street = parsedAddress.street;
+    const city = parsedAddress.city;
+    const state = parsedAddress.state;
+
+    console.log(street);
+    console.log(city);
+    console.log(state);
+
+    const melissa_global_url = 'https://address.melissadata.net/v3/WEB/GlobalAddress/doGlobalAddress?id=biSxhdpkI8-4KVqfEHnJ_H**nSAcwXpxhQ0PC2lXxuDAZ-**&a1=' + street + '&loc=' + city + '&ctry=USA&admarea=' + state + '&format=json'
+    console.log(melissa_global_url);
     const global_res = await axios.get(melissa_global_url);
 
     console.log("global res:", global_res);
@@ -50,6 +60,25 @@ app.post('/get_data', async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 });
+
+
+function parseAddress(address) {
+  const addressParts = address.split(','); // Split the address by commas
+
+  if (addressParts.length < 3) {
+      throw new Error('Invalid address format');
+  }
+
+  const street = addressParts[0].trim();
+  const city = addressParts[1].trim();
+  const state = addressParts[2].trim().split(" ")[0];
+
+  return {
+      street,
+      city,
+      state
+  };
+}
 
 function extractZipCode(address) {
     const words = address.trim().split(' ');
