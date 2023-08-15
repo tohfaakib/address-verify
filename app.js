@@ -30,10 +30,16 @@ app.post('/get_data', async (req, res) => {
 
     console.log("property:", property_res.data);
 
+    const melissa_global_url = 'https://address.melissadata.net/v3/WEB/GlobalAddress/doGlobalAddress?id=biSxhdpkI8-4KVqfEHnJ_H**nSAcwXpxhQ0PC2lXxuDAZ-**&a1=3208 Berkshire Way&loc=Sacramento&ctry=USA&admarea=CA&format=json'
+    const global_res = await axios.get(melissa_global_url);
+
+    console.log("global res:", global_res);
+
 
     let all_data = {
       "usgeocoder": response.data,
-      "melissa": property_res.data
+      "melissa": property_res.data,
+      "melissa_global": global_res.data
     }
 
     console.log("all:", all_data);

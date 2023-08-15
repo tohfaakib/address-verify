@@ -207,6 +207,8 @@
     function showData(all_data) {
       let data = all_data.usgeocoder;
       let propertyData = all_data.melissa;
+      let melissa_global = all_data.melissa_global;
+
       is_property_data = checkIfMultipleKeysExist(propertyData);
       if (data.usgeocoder && data.usgeocoder.address_info) {
         const addressInfo = data.usgeocoder.address_info;
@@ -231,11 +233,6 @@
         
 
         if (is_property_data == true) {
-
-          console.log("here");
-          console.log(propertyData.TotalRecords);
-          console.log("here");
-
           let municipalType = "Not Found";
           if (data.usgeocoder.jurisdictions_info && data.usgeocoder.jurisdictions_info.municipal) {
             const municipalStatus = data.usgeocoder.jurisdictions_info.municipal.municipal_status;
@@ -253,14 +250,24 @@
             }
           }
 
+          const melissaGlobalRecord = melissa_global.Records[0];
+
           let html = `
             <div id="municipal_type">Jurisdiction: ${municipalType}</div>
             <div>
-              <p>Street: ${addressInfo.street || "Not Found"}</p>
+              <!-- <p>Street: ${addressInfo.street || "Not Found"}</p> 
               <p>City: ${addressInfo.city || "Not Found"}</p>
               <p>County: ${addressInfo.county || "Not Found"}</p>
               <p>State: ${addressInfo.state || "Not Found"}</p>
-              <p>Zip Code: ${addressInfo.zip5 || "Not Found"}</p>
+              <p>Zip Code: ${addressInfo.zip5 || "Not Found"}</p> -->
+
+              <p>Street: ${melissaGlobalRecord.AddressLine1 || "Not Found"}</p>
+              <p>City: ${melissaGlobalRecord.Locality || "Not Found"}</p>
+              <p>County: ${melissaGlobalRecord.SubAdministrativeArea || "Not Found"}</p>
+              <p>State: ${melissaGlobalRecord.AdministrativeArea || "Not Found"}</p>
+              <p>Zip Code: ${melissaGlobalRecord.PostalCode || "Not Found"}</p>
+
+              
             </div>
             
           `;
@@ -268,8 +275,9 @@
           resultDiv.innerHTML = html;
 
           const propertyRecord = propertyData.Records[0];
+          
 
-          const apn = propertyRecord.Parcel.FormattedAPN;
+          const apn = propertyRecord.Parcel.UnformattedAPN;
           const owner = propertyRecord.PrimaryOwner.Name1Full;
           const yearBuilt = propertyRecord.PropertyUseInfo.YearBuilt;
           const livableSquareFeet = propertyRecord.PropertySize.AreaBuilding;
