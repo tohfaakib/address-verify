@@ -81,16 +81,6 @@
       cursor: pointer;
     }
 
-
-    /* #submitButton:focus {
-      outline: none;
-    }
-
-    #submitButton:active {
-      background-color: #3a3e3b;
-    } */
-
-
   .spinner {
     position: relative;
     top: 2px; /* Adjust this value to control the vertical alignment */
@@ -222,6 +212,7 @@
       let data = all_data.usgeocoder;
       let propertyData = all_data.melissa;
       let melissa_global = all_data.melissa_global;
+      let cliemate_zone = all_data.cliemate_zone;
 
       is_property_data = checkIfMultipleKeysExist(propertyData);
       if (data.usgeocoder && data.usgeocoder.address_info) {
@@ -271,12 +262,7 @@
           let html = `
             <div id="municipal_type">Jurisdiction: ${municipalType}</div>
             <div>
-              <!-- <p>Street: ${addressInfo.street || "Not Found"}</p> 
-              <p>City: ${addressInfo.city || "Not Found"}</p>
-              <p>County: ${addressInfo.county || "Not Found"}</p>
-              <p>State: ${addressInfo.state || "Not Found"}</p>
-              <p>Zip Code: ${addressInfo.zip5 || "Not Found"}</p> -->
-
+              <p>Climate Zone: ${cliemate_zone || "Not Found"}</p>
               <p>Street: ${melissaGlobalRecord.AddressLine1 || "Not Found"}</p>
               <p>City: ${melissaGlobalRecord.Locality || "Not Found"}</p>
               <p>County: ${melissaGlobalRecord.SubAdministrativeArea || "Not Found"}</p>

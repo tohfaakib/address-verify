@@ -1,6 +1,8 @@
 const express = require('express');
 const axios = require('axios');
 const { log } = require('console');
+const XLSX = require('xlsx');
+const path = require('path');
 
 const app = express();
 const port = 3000;
@@ -45,11 +47,15 @@ app.post('/get_data', async (req, res) => {
 
     console.log("global res:", global_res);
 
+  const cliemate_zone = getCorrespondingValue(zipcode);
+  console.log(`Corresponding value: ${cliemate_zone}`);
+
 
     let all_data = {
       "usgeocoder": response.data,
       "melissa": property_res.data,
-      "melissa_global": global_res.data
+      "melissa_global": global_res.data,
+      "cliemate_zone": cliemate_zone,
     }
 
     console.log("all:", all_data);
@@ -92,6 +98,41 @@ function extractZipCode(address) {
       return '';
     }
   }
+
+
+
+// Define the path to your Excel file
+const excelFilePath = path.join(__dirname, 'BuildingClimateZonesByZIPCode_ada.xlsx');
+
+// Function to retrieve corresponding value from Excel based on zipcode
+function getCorrespondingValue(zipcode) {
+  // Load the Excel file
+  const workbook = XLSX.readFile(excelFilePath);
+  
+  // Assume the data is in the first sheet and starts from the second row
+  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+  
+  // Iterate through the rows
+  for (let i = 2; ; i++) {
+    const zipcodeCell = worksheet[`A${i}`];
+    const valueCell = worksheet[`B${i}`];
+    
+    if (!zipcodeCell || !valueCell) {
+      // No more data
+      break;
+    }
+    
+    const currentZipcode = zipcodeCell.v.toString();
+    if (currentZipcode === zipcode) {
+      return valueCell.v;
+    }
+  }
+  
+  // Zip code not found
+  return 'Zip code not found';
+}
+
+
   
 
 app.listen(port, () => {
