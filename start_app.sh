@@ -20,15 +20,15 @@ sudo ufw allow 3000/tcp   # Your app's port
 sudo ufw enable
 
 # Build Docker image
-docker build -t address_verify "$SCRIPT_DIR"
+sudo docker build -t address_verify "$SCRIPT_DIR"
 
 # Install Docker Compose
 sudo apt-get install -y docker-compose
 
 # Start the app using Docker Compose
-docker-compose up -d
+sudo docker-compose up -d
 
 # Add a crontab entry to start the app on reboot
-(crontab -l ; echo "@reboot cd \"$SCRIPT_DIR\" && docker-compose up -d") | crontab -
+(crontab -l ; echo "@reboot cd \"$SCRIPT_DIR\" && sudo docker-compose up -d") | crontab -
 
 echo "Setup completed! Your app should be up and running after reboot."
