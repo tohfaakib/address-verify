@@ -1,0 +1,6 @@
+version: '3'
+services:
+  address_verify:
+    image: address_verify
+    ports:
+      - 3000:3000
