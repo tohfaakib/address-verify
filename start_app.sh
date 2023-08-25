@@ -14,11 +14,11 @@ sudo systemctl start docker
 sudo systemctl enable docker
 
 # Set up UFW (Uncomplicated Firewall)
-sudo apt-get install -y ufw
+# sudo apt-get install -y ufw
 #sudo ufw allow 22/tcp     # SSH
-sudo ufw allow 80/tcp     # HTTP for Nginx
-sudo ufw allow 3000/tcp   # Your app's port
-sudo ufw enable
+# sudo ufw allow 80/tcp     # HTTP for Nginx
+# sudo ufw allow 3000/tcp   # Your app's port
+# sudo ufw enable
 
 # Build Docker image
 sudo docker build -t address_verify "$SCRIPT_DIR"
