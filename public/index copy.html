@@ -126,18 +126,12 @@
     <label for="addressInput">Enter Address:</label>
     <div class="input-group">
         <input type="text" id="addressInput" placeholder="2600 16th St, Sacramento, CA">
-        
-        <input type="hidden" id="cityInput" name="cityInput" />
-        <input type="hidden" id="zipcodeInput" name="zipcodeInput" />
-        <input type="hidden" id="stateInput" name="stateInput" />
-
         <button id="submitButton" class="default-button">
             <span id="spinner" class="spinner" style="display: none;"></span>
             Submit Address
         </button>
     </div>
     <div id="result" style="display: none;"></div>
-
 </div>
 
   <script>
@@ -149,9 +143,6 @@
 
     async function fetchData() {
       const address = addressInput.value.trim();
-      const city = document.getElementById("cityInput").value;
-      const zipcode = document.getElementById("zipcodeInput").value;
-      const state = document.getElementById("stateInput").value;
       if (address !== "") {
         // Disable the button and show the spinner
         submitButton.disabled = true;
@@ -165,13 +156,6 @@
           sub_btn.innerHTML = '<span id="spinner" class="spinner" style="display: none;"></span> Submit Address'
           document.getElementById("spinner").style.display = "inline-block";
         }
-
-        const dataToSend = {
-          address,
-          city,
-          zipcode,
-          state,
-        };
         
 
         try {
@@ -180,7 +164,7 @@
             headers: {
               "Content-Type": "application/json"
             },
-            body: JSON.stringify({ dataToSend })
+            body: JSON.stringify({ address })
           });
           const all_data = await response.json();
 
@@ -351,44 +335,5 @@
     }
 
   </script>
-
-
-  <script>
-    // Initialize Google Places Autocomplete
-    function initAutocomplete() {
-      const addressInput = document.getElementById("addressInput");
-      const autocomplete = new google.maps.places.Autocomplete(addressInput);
-
-      autocomplete.addListener("place_changed", function () {
-        const place = autocomplete.getPlace();
-        if (!place.geometry) {
-          console.error("Place details not found for the input.");
-          return;
-        }
-
-        // Extract the city, zipcode, and state from the place
-        const city = place.address_components.find(
-          (component) => component.types.includes("locality")
-        );
-        const zipcode = place.address_components.find(
-          (component) => component.types.includes("postal_code")
-        );
-        const state = place.address_components.find(
-          (component) => component.types.includes("administrative_area_level_1")
-        );
-
-        // Set the values of the hidden input fields
-        document.getElementById("cityInput").value = city ? city.long_name : "";
-        document.getElementById("zipcodeInput").value = zipcode ? zipcode.long_name : "";
-        document.getElementById("stateInput").value = state ? state.short_name : "";
-      });
-    }
-
-
-
-    // Attach the Autocomplete initialization when the page loads
-    google.maps.event.addDomListener(window, "load", initAutocomplete);
-  </script>
-
 </body>
 </html>
