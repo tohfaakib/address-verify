@@ -15,13 +15,21 @@ app.post('/get_data', async (req, res) => {
   try {
     const { address } = req.body;
     const zipcode = extractZipCode(address);
-    const addressWithoutZip = address.replace(zipcode, '').trim();
+    // const addressWithoutZip = address.replace(zipcode, '').trim();
+
+    const parsedAddress = parseAddress(address);
+    const street = parsedAddress.street;
+    const city = parsedAddress.city;
+    const state = parsedAddress.state;
+
     const authkey = "bc447ed5abef387b50b76ad49a66d11c";
 
-    const url = "https://usgeocoder.com/api/get_info.php?address="+ addressWithoutZip +"&zipcode=" + zipcode + "&authkey=" + authkey + "&format=json"
+    console.log("zip:", zipcode);
 
-    console.log(addressWithoutZip);
-    console.log(zipcode);
+    const url = "https://usgeocoder.com/api/get_info.php?address="+ street +"&zipcode=" + zipcode + "&authkey=" + authkey + "&format=json"
+
+    // console.log(addressWithoutZip);
+    // console.log(zipcode);
 
 
     const response = await axios.get(url);
@@ -32,14 +40,6 @@ app.post('/get_data', async (req, res) => {
 
     console.log("property:", property_res.data);
 
-    const parsedAddress = parseAddress(address);
-    const street = parsedAddress.street;
-    const city = parsedAddress.city;
-    const state = parsedAddress.state;
-
-    console.log(street);
-    console.log(city);
-    console.log(state);
 
     const melissa_global_url = 'https://address.melissadata.net/v3/WEB/GlobalAddress/doGlobalAddress?id=biSxhdpkI8-4KVqfEHnJ_H**nSAcwXpxhQ0PC2lXxuDAZ-**&a1=' + street + '&loc=' + city + '&ctry=USA&admarea=' + state + '&format=json'
     console.log(melissa_global_url);
@@ -87,8 +87,11 @@ function parseAddress(address) {
 }
 
 function extractZipCode(address) {
+    console.log("aaaaa:", address)
     const words = address.trim().split(' ');
+    console.log(words)
     const lastWord = words[words.length - 1];
+    console.log(lastWord)
     const zipCodeRegex = /^\d{3,6}$/; // Regular expression to match 3 to 6 numeric characters
   
     if (zipCodeRegex.test(lastWord)) {
