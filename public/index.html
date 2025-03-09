@@ -267,6 +267,27 @@
       let propertyData = all_data.melissa;
       let melissa_global = all_data.melissa_global;
       let cliemate_zone = all_data.cliemate_zone;
+      let environmentalData = all_data.environmentalData;
+
+      if (environmentalData != null) {
+        let elevation = environmentalData.elevation ?? "No Data";
+        let latitude = environmentalData.latitude ?? "No Data";
+        let longitude = environmentalData.longitude ?? "No Data";
+        let standard = environmentalData.standard ?? "No Data";
+        let riskCategory = environmentalData.riskCategory ?? "No Data";
+        let soilClass = environmentalData.soilClass ?? "No Data";
+        let windSpeed = environmentalData.windSpeed ?? "No Data";
+        let seismicSDS = environmentalData.seismicSDS ?? "No Data";
+        let seismicDesignCategory = environmentalData.seismicDesignCategory ?? "No Data";
+        let iceThickness = environmentalData.iceThickness ?? "No Data";
+        let groundSnowLoad = environmentalData.groundSnowLoad ?? "No Data";
+        let rain15Min = environmentalData.rain15Min ?? "No Data";
+        let rain60Min = environmentalData.rain60Min ?? "No Data";
+        let floodZone = environmentalData.floodZone ?? "No Data";
+        let tsunamiRisk = environmentalData.tsunamiRisk ?? "No Data";
+      }
+      
+
 
       is_property_data = checkIfMultipleKeysExist(propertyData);
       if (data.usgeocoder && data.usgeocoder.address_info) {
@@ -356,6 +377,28 @@
 
           // Append property data to the resultDiv
           resultDiv.innerHTML += propertyHtml;
+
+          const environmentalHtml = `
+            <div id="environmental_data">
+              <p>Elevation: ${elevation}</p>
+              <p>Latitude: ${latitude}</p>
+              <p>Longitude: ${longitude}</p>
+              <p>Standard: ${standard}</p>
+              <p>Risk Category: ${riskCategory}</p>
+              <p>Soil Class: ${soilClass}</p>
+              <p>Wind Speed: ${windSpeed}</p>
+              <p>Seismic SDS: ${seismicSDS}</p>
+              <p>Seismic Design Category: ${seismicDesignCategory}</p>
+              <p>Ice Thickness: ${iceThickness}</p>
+              <p>Ground Snow Load: ${groundSnowLoad}</p>
+              <p>Rain 15 Min: ${rain15Min}</p>
+              <p>Rain 60 Min: ${rain60Min}</p>
+              <p>Flood Zone: ${floodZone}</p>
+              <p>Tsunami Risk: ${tsunamiRisk}</p>
+            </div>
+          `;
+          resultDiv.innerHTML += environmentalHtml;
+
 
         } else {
           resultDiv.style.display = "block";
