@@ -49,60 +49,25 @@
       height: 100%;
     }
 
-    /* Updated result section styling */
     #result {
       margin-top: 1.5rem;
       padding: 1.5rem;
       border-radius: 8px;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    [data-theme="light"] #result {
+      background-color: var(--card-background-color);
+      box-shadow: var(--card-box-shadow);
     }
 
     [data-theme="dark"] #result {
-      background-color: rgba(30, 35, 40, 0.5);
+      background-color: var(--card-sectionning-background-color);
     }
 
     #municipal_type {
-      font-size: 1.75rem;
-      font-weight: 500;
-      margin-bottom: 2rem;
-      color: var(--primary);
-      letter-spacing: -0.02em;
-    }
-
-    /* Style for all sections in the result */
-    #result > div {
-      margin-bottom: 1.5rem;
-    }
-
-    /* Basic info styling */
-    #result p {
-      margin: 0.5rem 0;
-      font-size: 1.125rem;
-      line-height: 1.4;
-      display: flex;
-      align-items: baseline;
-    }
-
-    #result p::before {
-      content: attr(data-label);
-      font-weight: 500;
-      min-width: 140px;
-      color: var(--primary);
-    }
-
-    /* Section headers */
-    #result h3 {
+      font-weight: bold;
       font-size: 1.25rem;
-      font-weight: 500;
-      margin: 1.5rem 0 1rem;
-      color: var(--primary);
-      letter-spacing: -0.01em;
-    }
-
-    /* Property and Environmental data sections */
-    #property_data,
-    #environmental_data {
-      padding-top: 0.5rem;
+      margin-bottom: 1.25rem;
     }
 
     .spinner {
@@ -322,7 +287,6 @@
       }
     }
 
-    // Update the showData function to use data attributes for labels
     function showData(all_data) {
       let data = all_data.usgeocoder;
       let propertyData = all_data.melissa;
@@ -392,12 +356,12 @@
           let html = `
             <div id="municipal_type">Jurisdiction: ${municipalType}</div>
             <div>
-              <p data-label="Climate Zone: ">${cliemate_zone || "Not Found"}</p>
-              <p data-label="Street: ">${melissaGlobalRecord.FormattedAddress ? melissaGlobalRecord.FormattedAddress.split(';')[0] : "Not Found"}</p>
-              <p data-label="City: ">${melissaGlobalRecord.Locality || "Not Found"}</p>
-              <p data-label="County: ">${melissaGlobalRecord.SubAdministrativeArea || "Not Found"}</p>
-              <p data-label="State: ">${melissaGlobalRecord.AdministrativeArea || "Not Found"}</p>
-              <p data-label="Zip Code: ">${melissaGlobalRecord.PostalCode || "Not Found"}</p>
+              <p>Climate Zone: ${cliemate_zone || "Not Found"}</p>
+              <p>Street: ${melissaGlobalRecord.FormattedAddress ? melissaGlobalRecord.FormattedAddress.split(';')[0] : "Not Found"}</p>
+              <p>City: ${melissaGlobalRecord.Locality || "Not Found"}</p>
+              <p>County: ${melissaGlobalRecord.SubAdministrativeArea || "Not Found"}</p>
+              <p>State: ${melissaGlobalRecord.AdministrativeArea || "Not Found"}</p>
+              <p>Zip Code: ${melissaGlobalRecord.PostalCode || "Not Found"}</p>
             </div>
           `;
           
@@ -417,13 +381,13 @@
           const propertyHtml = `
             <div id="property_data">
               <h3>Property Information</h3>
-              <p data-label="APN: ">${apn}</p>
-              <p data-label="Owner: ">${owner}</p>
-              <p data-label="Year Built: ">${yearBuilt}</p>
-              <p data-label="Square Feet: ">${livableSquareFeet}</p>
-              <p data-label="Lot Size (SF): ">${lotSizeSF}</p>
-              <p data-label="Bedrooms: ">${bedrooms}</p>
-              <p data-label="Total Rooms: ">${totalRooms}</p>
+              <p>APN: ${apn}</p>
+              <p>Owner: ${owner}</p>
+              <p>Year Built: ${yearBuilt}</p>
+              <p>Square Feet: ${livableSquareFeet}</p>
+              <p>Lot Size (SF): ${lotSizeSF}</p>
+              <p>Bedrooms: ${bedrooms}</p>
+              <p>Total Rooms: ${totalRooms}</p>
             </div>
           `;
 
@@ -433,22 +397,22 @@
           if (environmentalData != null) {
             const environmentalHtml = `
               <div id="environmental_data">
-                <h3>Environmental Information</h3>
-                <p data-label="Elevation: ">${elevation}</p>
-                <p data-label="Latitude: ">${latitude}</p>
-                <p data-label="Longitude: ">${longitude}</p>
-                <p data-label="Standard: ">${standard}</p>
-                <p data-label="Risk Category: ">${riskCategory}</p>
-                <p data-label="Soil Class: ">${soilClass}</p>
-                <p data-label="Wind Speed: ">${windSpeed}</p>
-                <p data-label="Seismic SDS: ">${seismicSDS}</p>
-                <p data-label="Seismic Design Category: ">${seismicDesignCategory}</p>
-                <p data-label="Ice Thickness: ">${iceThickness}</p>
-                <p data-label="Ground Snow Load: ">${groundSnowLoad}</p>
-                <p data-label="Rain 15 Min: ">${rain15Min}</p>
-                <p data-label="Rain 60 Min: ">${rain60Min}</p>
-                <p data-label="Flood Zone: ">${floodZone}</p>
-                <p data-label="Tsunami Risk: ">${tsunamiRisk}</p>
+                <h3>Environmental Data</h3>
+                <p>Elevation: ${elevation}</p>
+                <p>Latitude: ${latitude}</p>
+                <p>Longitude: ${longitude}</p>
+                <p>Standard: ${standard}</p>
+                <p>Risk Category: ${riskCategory}</p>
+                <p>Soil Class: ${soilClass}</p>
+                <p>Wind Speed: ${windSpeed}</p>
+                <p>Seismic SDS: ${seismicSDS}</p>
+                <p>Seismic Design Category: ${seismicDesignCategory}</p>
+                <p>Ice Thickness: ${iceThickness}</p>
+                <p>Ground Snow Load: ${groundSnowLoad}</p>
+                <p>Rain 15 Min: ${rain15Min}</p>
+                <p>Rain 60 Min: ${rain60Min}</p>
+                <p>Flood Zone: ${floodZone}</p>
+                <p>Tsunami Risk: ${tsunamiRisk}</p>
               </div>
             `;
             resultDiv.innerHTML += environmentalHtml;
