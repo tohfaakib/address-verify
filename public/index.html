@@ -330,6 +330,8 @@
       let cliemate_zone = all_data.cliemate_zone;
       let environmentalData = all_data.environmentalData;
 
+      console.log(environmentalData)
+
       if (environmentalData != null) {
         var elevation = environmentalData.elevation ?? "No Data";
         var latitude = environmentalData.latitude ?? "No Data";
@@ -337,14 +339,14 @@
         var standard = environmentalData.standard ?? "No Data";
         var riskCategory = environmentalData.riskCategory ?? "No Data";
         var soilClass = environmentalData.soilClass ?? "No Data";
-        var windSpeed = environmentalData.windSpeed ?? "No Data";
-        var seismicSDS = environmentalData.seismicSDS ?? "No Data";
-        var seismicDesignCategory = environmentalData.seismicDesignCategory ?? "No Data";
+        var windSpeed = environmentalData.wind_speed ?? "No Data";
+        var seismicSDS = environmentalData.sds ?? "No Data";
+        var seismicDesignCategory = environmentalData.seismic_design_category ?? "No Data";
         var iceThickness = environmentalData.iceThickness ?? "No Data";
-        var groundSnowLoad = environmentalData.groundSnowLoad ?? "No Data";
+        var groundSnowLoad = environmentalData.ground_snow_load ?? "No Data";
         var rain15Min = environmentalData.rain15Min ?? "No Data";
         var rain60Min = environmentalData.rain60Min ?? "No Data";
-        var floodZone = environmentalData.floodZone ?? "No Data";
+        var floodZone = environmentalData.flood_zone ?? "No Data";
         var tsunamiRisk = environmentalData.tsunamiRisk ?? "No Data";
       }
       
