@@ -13,20 +13,10 @@ sudo apt-get install -y docker.io
 sudo systemctl start docker
 sudo systemctl enable docker
 
-# Set up UFW (Uncomplicated Firewall)
-# sudo apt-get install -y ufw
-#sudo ufw allow 22/tcp     # SSH
-# sudo ufw allow 80/tcp     # HTTP for Nginx
-# sudo ufw allow 3000/tcp   # Your app's port
-# sudo ufw enable
-
-# Build Docker image
-sudo docker build -t address_verify "$SCRIPT_DIR"
-
 # Install Docker Compose
 sudo apt-get install -y docker-compose
 
-# Start the app using Docker Compose
+# Start the app using Docker Compose (builds image and runs container)
 sudo docker-compose up -d
 
 # Install and configure Nginx
@@ -35,14 +25,21 @@ sudo apt-get install -y nginx
 # Ask user for server IP address
 read -p "Enter your server's public IP address: " SERVER_IP
 
-# Configure Nginx as a reverse proxy
+# Configure Nginx as a reverse proxy for both ports
 sudo tee /etc/nginx/sites-available/default > /dev/null <<EOT
 server {
     listen 80;
     server_name $SERVER_IP;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3000;  # Node app
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;  # Python app
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -56,7 +53,7 @@ sudo nginx -t
 # Reload Nginx
 sudo systemctl reload nginx
 
-# Add a crontab entry to start the app and Nginx on reboot
+# Add crontab entry for auto-start on reboot
 (crontab -l ; echo "@reboot cd \"$SCRIPT_DIR\" && sudo docker-compose up -d && sudo systemctl start nginx") | crontab -
 
-echo "Setup completed! Your app and Nginx reverse proxy should be up and running after reboot."
+echo "Setup completed! Node app (3000) and Python app (8000) are up, with Nginx proxy routing configured."
