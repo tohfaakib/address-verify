@@ -1,5 +1,6 @@
 services:
   address_verify:
+    container_name: address_verify
     build: .
     image: address_verify
     ports:
