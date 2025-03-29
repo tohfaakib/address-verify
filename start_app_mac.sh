@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# Wait for Docker to be ready
-until docker info >/dev/null 2>&1; do
-    echo "🕒 Waiting for Docker to start..."
-    sleep 2
-done
+sleep 20 # Wait for 20 seconds to ensure Docker is up and running
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 BUILD_MODE=false
