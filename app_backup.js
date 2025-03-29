@@ -13,7 +13,8 @@ app.use(express.static('public'));
 
 
 async function fetchEnvironmentalData(address) {
-  const SCRAPER_API = `http://localhost:8000/scrape?address=${encodeURIComponent(address)}`;
+  // const SCRAPER_API = `http://localhost:8000/scrape?address=${encodeURIComponent(address)}`;
+  const SCRAPER_API = `http://localhost:8000/scrape?address=3208%20Berkshire%20Way,%20Sacramento,%20California,%2095864`;
 
   try {
     const response = await axios.get(SCRAPER_API);
