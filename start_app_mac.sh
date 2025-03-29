@@ -10,7 +10,7 @@ echo "🧼 Removing old Docker image: $IMAGE_NAME (if it exists)..."
 docker rmi -f $IMAGE_NAME 2> /dev/null || echo "No previous image to remove."
 
 echo "🏗️ Building and starting fresh containers with Docker Compose..."
-docker compose --file "$SCRIPT_DIR/docker-compose.yml" up --detach --build
+docker-compose -f "$SCRIPT_DIR/docker-compose.yml" up -d --build
 
 echo ""
 echo "✅ Setup complete!"
