@@ -1,157 +1,223 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="dark">
 <head>
   <title>Address Lookup</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Pico CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    /* Custom styles */
+    :root {
+      --spinner-color: var(--primary);
     }
 
+    [data-theme="dark"] {
+      --spinner-color: #fff;
+    }
+
+    body {
+      padding: 1rem;
+    }
 
     #container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem;
+      border-radius: 8px;
     }
 
-
-    label {
-      display: block;
-      margin-bottom: 10px;
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
     }
 
     .input-group {
-        display: flex;
-        align-items: center;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
 
-    input[type="text"] {
-
-      flex: 1;
-
-      width: 96%;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-bottom: 20px;
+    .input-group input {
+      margin-bottom: 0;
     }
 
+    /* Fix alignment of button and input */
     #submitButton {
-        /* Adjust margins and flex properties */
-        margin-left: 10px;
-        margin-bottom: 20px;
-        padding: 5 px;
-        align-self: flex-end;
-    }
-
-    #result {
-      border: 1px solid #ccc;
-      padding: 20px;
-      border-radius: 5px;
-      margin-top: 20px;
-      background-color: #f9f9f9;
-    }
-
-    #result p {
       margin: 0;
-      margin-bottom: 10px;
+      height: 100%;
+    }
+
+    /* Updated result section styling */
+    #result {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 8px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    [data-theme="dark"] #result {
+      background-color: rgba(30, 35, 40, 0.5);
     }
 
     #municipal_type {
-      font-weight: bold;
-      font-size: 20px;
-      margin-bottom: 20px;
+      font-size: 1.75rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      color: var(--primary);
+      letter-spacing: -0.02em;
     }
 
+    /* Style for all sections in the result */
+    #result > div {
+      margin-bottom: 1.5rem;
+    }
 
-    .default-button {
-      background-color: #787474;
-      color: white;
-      padding: 10px 20px;
-      font-size: 16px;
+    /* Basic info styling */
+    #result p {
+      margin: 0.5rem 0;
+      font-size: 1.125rem;
+      line-height: 1.4;
+      display: flex;
+      align-items: baseline;
+    }
+
+    #result p::before {
+      content: attr(data-label);
+      font-weight: 500;
+      min-width: 140px;
+      color: var(--primary);
+    }
+
+    /* Section headers */
+    #result h3 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin: 1.5rem 0 1rem;
+      color: var(--primary);
+      letter-spacing: -0.01em;
+    }
+
+    /* Property and Environmental data sections */
+    #property_data,
+    #environmental_data {
+      padding-top: 0.5rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 0.2rem solid rgba(var(--spinner-color), 0.3);
+      border-top: 0.2rem solid var(--spinner-color);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Theme toggle - removed border */
+    .theme-switch {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
       border: none;
-      border-radius: 5px;
       cursor: pointer;
+      padding: 0.5rem;
+      font-size: 1.25rem;
+      outline: none;
+      box-shadow: none;
     }
 
-
-    .green-button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      font-size: 16px;
+    .theme-switch:hover, .theme-switch:focus {
+      background: none;
       border: none;
-      border-radius: 5px;
-      cursor: pointer;
+      box-shadow: none;
     }
 
-    .red-button {
-      background-color: #FF5733;
+    /* Button states */
+    .success {
+      background-color: var(--form-element-valid-active-border-color) !important;
       color: white;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
     }
 
-  .spinner {
-    position: relative;
-    top: 2px; /* Adjust this value to control the vertical alignment */
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #333;
-    border-radius: 50%;
-    width: 12px;
-    height: 12px;
-    animation: spin 2s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-
+    .error {
+      background-color: var(--form-element-invalid-active-border-color) !important;
+      color: white;
+    }
   </style>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZGoN5IxgQlg5ECqEEbjkf_sfJptW5QD4&libraries=places"></script>
-
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZGoN5IxgQlg5ECqEEbjkf_sfJptW5QD4&libraries=places"></script>
 </head>
 <body>
-  <div id="container">
-    <label for="addressInput">Enter Address:</label>
-    <div class="input-group">
+  <button class="theme-switch" aria-label="Toggle theme">☀️</button>
+  
+  <main class="container">
+    <div id="container">
+      <h1>Address Lookup</h1>
+      
+      <label for="addressInput">Enter Address:</label>
+      <div class="input-group">
         <input type="text" id="addressInput" placeholder="2600 16th St, Sacramento, CA">
         
         <input type="hidden" id="cityInput" name="cityInput" />
         <input type="hidden" id="zipcodeInput" name="zipcodeInput" />
         <input type="hidden" id="stateInput" name="stateInput" />
 
-        <button id="submitButton" class="default-button">
-            <span id="spinner" class="spinner" style="display: none;"></span>
-            Submit Address
+        <button id="submitButton">
+          <span id="spinner" class="spinner" style="display: none;"></span>
+          Submit Address
         </button>
+      </div>
+      
+      <article id="result" style="display: none;"></article>
     </div>
-    <div id="result" style="display: none;"></div>
-
-</div>
+  </main>
 
   <script>
+    // Theme toggle functionality
+    const themeToggle = document.querySelector('.theme-switch');
+    const htmlElement = document.documentElement;
+    
+    // Set dark theme as default, override saved preference
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    // Apply the saved theme
+    htmlElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      htmlElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+    
+    function updateThemeIcon(theme) {
+      themeToggle.textContent = theme === 'light' ? '🌓' : '☀️';
+    }
+
+    // Address lookup functionality
     const addressInput = document.getElementById("addressInput");
     const resultDiv = document.getElementById("result");
-    const submitButton = document.getElementById("submitButton"); // Get the button element
+    const submitButton = document.getElementById("submitButton");
 
-    submitButton.addEventListener("click", fetchData); // Attach the click event listener to the button
+    submitButton.addEventListener("click", fetchData);
 
     async function fetchData() {
       const address = addressInput.value.trim();
       const city = document.getElementById("cityInput").value;
       const zipcode = document.getElementById("zipcodeInput").value;
       const state = document.getElementById("stateInput").value;
+      
       if (address !== "") {
         // Disable the button and show the spinner
         submitButton.disabled = true;
@@ -160,9 +226,8 @@
           document.getElementById("spinner").style.display = "inline-block";
         } catch (error) {
           let sub_btn = document.getElementById("submitButton");
-          sub_btn.classList.remove("default-button", "green-button", "red-button");
-          sub_btn.classList.add("default-button");
-          sub_btn.innerHTML = '<span id="spinner" class="spinner" style="display: none;"></span> Submit Address'
+          sub_btn.classList.remove("success", "error");
+          sub_btn.innerHTML = '<span id="spinner" class="spinner" style="display: none;"></span> Submit Address';
           document.getElementById("spinner").style.display = "inline-block";
         }
 
@@ -173,7 +238,6 @@
           state,
         };
         
-
         try {
           const response = await fetch("/get_data", {
             method: "POST",
@@ -192,7 +256,6 @@
             console.log("couldn't find spinner to hide!");
           }
           
-
           showData(all_data);
         } catch (error) {
           // Enable the button and hide the spinner
@@ -207,23 +270,22 @@
         }
       } else {
         resultDiv.style.display = "block";
-        resultDiv.innerHTML = `<p style="color: red;">Please enter an address</p>`;
+        resultDiv.innerHTML = `<p style="color: var(--form-element-invalid-active-border-color);">Please enter an address</p>`;
       }
     }
 
-
     function checkIfMultipleKeysExist(inputJSON) {
-        const parsedJSON = inputJSON;
+      const parsedJSON = inputJSON;
       try {
-          if (parsedJSON.Records && parsedJSON.Records[0]) {
-              const recordKeys = Object.keys(parsedJSON.Records[0]);
-              return recordKeys.length > 1;
-          } else {
-              return false;
-          }
-      } catch (error) {
-          console.log("Error parsing JSON:", error);
+        if (parsedJSON.Records && parsedJSON.Records[0]) {
+          const recordKeys = Object.keys(parsedJSON.Records[0]);
+          return recordKeys.length > 1;
+        } else {
           return false;
+        }
+      } catch (error) {
+        console.log("Error parsing JSON:", error);
+        return false;
       }
     }
 
@@ -232,14 +294,13 @@
       const lastWord = words[words.length - 1].toLowerCase();
 
       if (lastWord === 'city' || lastWord === 'town') {
-          const locationName = words.slice(0, -1).join(' ');
-          const formattedLocation = `${lastWord.charAt(0).toUpperCase() + lastWord.slice(1)} of ${locationName}`;
-          return formattedLocation;
+        const locationName = words.slice(0, -1).join(' ');
+        const formattedLocation = `${lastWord.charAt(0).toUpperCase() + lastWord.slice(1)} of ${locationName}`;
+        return formattedLocation;
       } else {
-          return inputText;
+        return inputText;
       }
-  }
-
+    }
 
     function toTitleCase(str) {
       return str.replace(/\w\S*/g, function(txt) {
@@ -261,7 +322,7 @@
       }
     }
 
-
+    // Update the showData function to use data attributes for labels
     function showData(all_data) {
       let data = all_data.usgeocoder;
       let propertyData = all_data.melissa;
@@ -269,48 +330,38 @@
       let cliemate_zone = all_data.cliemate_zone;
       let environmentalData = all_data.environmentalData;
 
+      console.log(environmentalData)
+
       if (environmentalData != null) {
-        let elevation = environmentalData.elevation ?? "No Data";
-        let latitude = environmentalData.latitude ?? "No Data";
-        let longitude = environmentalData.longitude ?? "No Data";
-        let standard = environmentalData.standard ?? "No Data";
-        let riskCategory = environmentalData.riskCategory ?? "No Data";
-        let soilClass = environmentalData.soilClass ?? "No Data";
-        let windSpeed = environmentalData.windSpeed ?? "No Data";
-        let seismicSDS = environmentalData.seismicSDS ?? "No Data";
-        let seismicDesignCategory = environmentalData.seismicDesignCategory ?? "No Data";
-        let iceThickness = environmentalData.iceThickness ?? "No Data";
-        let groundSnowLoad = environmentalData.groundSnowLoad ?? "No Data";
-        let rain15Min = environmentalData.rain15Min ?? "No Data";
-        let rain60Min = environmentalData.rain60Min ?? "No Data";
-        let floodZone = environmentalData.floodZone ?? "No Data";
-        let tsunamiRisk = environmentalData.tsunamiRisk ?? "No Data";
+        var windSpeed = environmentalData.wind_speed ?? "No Data";
+        var seismicSDS = environmentalData.sds ?? "No Data";
+        var seismicDesignCategory = environmentalData.seismic_design_category ?? "No Data";
+        var iceThickness = environmentalData.iceThickness ?? "No Data";
+        var groundSnowLoad = environmentalData.ground_snow_load ?? "No Data";
+        var rain15Min = environmentalData.rain15Min ?? "No Data";
+        var rain60Min = environmentalData.rain60Min ?? "No Data";
+        var floodZone = environmentalData.flood_zone ?? "No Data";
+        var tsunamiRisk = environmentalData.tsunamiRisk ?? "No Data";
       }
       
-
-
       is_property_data = checkIfMultipleKeysExist(propertyData);
       if (data.usgeocoder && data.usgeocoder.address_info) {
         const addressInfo = data.usgeocoder.address_info;
 
-
         const addressStatus = addressInfo.address_status || "Not Found";
-        let buttonClass = "default-button";
         let statusIcon = "";
 
         if (addressStatus === "Match Found" && is_property_data == true) {
-          buttonClass = "green-button";
+          submitButton.classList.remove("error");
+          submitButton.classList.add("success");
           statusIcon = "✔"; // Checkmark icon
         } else {
-          buttonClass = "red-button";
+          submitButton.classList.remove("success");
+          submitButton.classList.add("error");
           statusIcon = "❌"; // Cross icon
         }
 
         submitButton.innerHTML = `${statusIcon} Submit Address`;
-        submitButton.classList.remove("default-button", "green-button", "red-button");
-        submitButton.classList.add(buttonClass);
-
-        
 
         if (is_property_data == true) {
           let municipalType = "Not Found";
@@ -337,16 +388,13 @@
           let html = `
             <div id="municipal_type">Jurisdiction: ${municipalType}</div>
             <div>
-              <p>Climate Zone: ${cliemate_zone || "Not Found"}</p>
-              <p>Street: ${melissaGlobalRecord.FormattedAddress ? melissaGlobalRecord.FormattedAddress.split(';')[0] : "Not Found"}</p>
-              <p>City: ${melissaGlobalRecord.Locality || "Not Found"}</p>
-              <p>County: ${melissaGlobalRecord.SubAdministrativeArea || "Not Found"}</p>
-              <p>State: ${melissaGlobalRecord.AdministrativeArea || "Not Found"}</p>
-              <p>Zip Code: ${melissaGlobalRecord.PostalCode || "Not Found"}</p>
-
-              
+              <p data-label="Climate Zone: ">${cliemate_zone || "Not Found"}</p>
+              <p data-label="Street: ">${melissaGlobalRecord.FormattedAddress ? melissaGlobalRecord.FormattedAddress.split(';')[0] : "Not Found"}</p>
+              <p data-label="City: ">${melissaGlobalRecord.Locality || "Not Found"}</p>
+              <p data-label="County: ">${melissaGlobalRecord.SubAdministrativeArea || "Not Found"}</p>
+              <p data-label="State: ">${melissaGlobalRecord.AdministrativeArea || "Not Found"}</p>
+              <p data-label="Zip Code: ">${melissaGlobalRecord.PostalCode || "Not Found"}</p>
             </div>
-            
           `;
           
           resultDiv.style.display = "block";
@@ -354,7 +402,6 @@
 
           const propertyRecord = propertyData.Records[0];
           
-
           const apn = propertyRecord.Parcel.UnformattedAPN;
           const owner = toTitleCase(propertyRecord.PrimaryOwner.Name1Full);
           const yearBuilt = propertyRecord.PropertyUseInfo.YearBuilt;
@@ -365,58 +412,43 @@
 
           const propertyHtml = `
             <div id="property_data">
-              <p>APN: ${apn}</p>
-              <p>Owner: ${owner}</p>
-              <p>Year Built: ${yearBuilt}</p>
-              <p>Square Feet: ${livableSquareFeet}</p>
-              <p>Lot Size (SF): ${lotSizeSF}</p>
-              <p>Bedrooms: ${bedrooms}</p>
-              <p>Total Rooms: ${totalRooms}</p>
+              <h3>Property Information</h3>
+              <p data-label="APN: ">${apn}</p>
+              <p data-label="Owner: ">${owner}</p>
+              <p data-label="Year Built: ">${yearBuilt}</p>
+              <p data-label="Square Feet: ">${livableSquareFeet}</p>
+              <p data-label="Lot Size (SF): ">${lotSizeSF}</p>
+              <p data-label="Bedrooms: ">${bedrooms}</p>
+              <p data-label="Total Rooms: ">${totalRooms}</p>
             </div>
           `;
 
           // Append property data to the resultDiv
           resultDiv.innerHTML += propertyHtml;
 
-          const environmentalHtml = `
-            <div id="environmental_data">
-              <p>Elevation: ${elevation}</p>
-              <p>Latitude: ${latitude}</p>
-              <p>Longitude: ${longitude}</p>
-              <p>Standard: ${standard}</p>
-              <p>Risk Category: ${riskCategory}</p>
-              <p>Soil Class: ${soilClass}</p>
-              <p>Wind Speed: ${windSpeed}</p>
-              <p>Seismic SDS: ${seismicSDS}</p>
-              <p>Seismic Design Category: ${seismicDesignCategory}</p>
-              <p>Ice Thickness: ${iceThickness}</p>
-              <p>Ground Snow Load: ${groundSnowLoad}</p>
-              <p>Rain 15 Min: ${rain15Min}</p>
-              <p>Rain 60 Min: ${rain60Min}</p>
-              <p>Flood Zone: ${floodZone}</p>
-              <p>Tsunami Risk: ${tsunamiRisk}</p>
-            </div>
-          `;
-          resultDiv.innerHTML += environmentalHtml;
-
-
+          if (environmentalData != null) {
+            const environmentalHtml = `
+              <div id="environmental_data">
+                <h3>Environmental Information</h3>
+                <p data-label="Wind Speed: ">${windSpeed}</p>
+                <p data-label="Seismic SDS: ">${seismicSDS}</p>
+                <p data-label="Seismic Design Category: ">${seismicDesignCategory}</p>
+                <p data-label="Ground Snow Load: ">${groundSnowLoad}</p>
+                <p data-label="Flood Zone: ">${floodZone}</p>
+              </div>
+            `;
+            resultDiv.innerHTML += environmentalHtml;
+          }
         } else {
           resultDiv.style.display = "block";
-          resultDiv.innerHTML = `<p style="color: red;">Data not available or invalid address</p>`;
+          resultDiv.innerHTML = `<p style="color: var(--form-element-invalid-active-border-color);">Data not available or invalid address</p>`;
         }
-
-
-
       } else {
         resultDiv.style.display = "block";
-        resultDiv.innerHTML = `<p style="color: red;">Data not available or invalid address</p>`;
+        resultDiv.innerHTML = `<p style="color: var(--form-element-invalid-active-border-color);">Data not available or invalid address</p>`;
       }
     }
 
-  </script>
-
-
-  <script>
     // Initialize Google Places Autocomplete
     function initAutocomplete() {
       const addressInput = document.getElementById("addressInput");
@@ -447,11 +479,9 @@
       });
     }
 
-
-
     // Attach the Autocomplete initialization when the page loads
     google.maps.event.addDomListener(window, "load", initAutocomplete);
   </script>
-
 </body>
 </html>
+
