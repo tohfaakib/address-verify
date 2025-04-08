@@ -13,8 +13,8 @@ REBUILD_MODE=false
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 
 # ⏳ Fixed 2-minute wait with progress output
-echo "⏳ Waiting 2 minutes for Docker to be ready..."
-for ((i=0; i<120; i+=5)); do
+echo "⏳ Waiting 1 minutes for Docker to be ready..."
+for ((i=0; i<60; i+=5)); do
   echo "🕒 Waiting... (${i}s elapsed)"
   sleep 5
 done
