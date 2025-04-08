@@ -1,31 +1,37 @@
 #!/bin/bash
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+# Full path to docker-compose binary
+DOCKER_COMPOSE_BIN="/usr/local/bin/docker-compose"
+DOCKER_BIN="/usr/local/bin/docker"
+
+# Hardcoded image name
 IMAGE_NAME="address_verify"
-BUILD_MODE=false
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+REBUILD_MODE=false
 
-# Optional: helpful for launchd context
-export DOCKER_HOST=unix:///Users/user/.docker/run/docker.sock
+# Optional if cron-based or running outside of full shell
+export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 
-# Check for --build flag
-if [[ "$1" == "--build" ]]; then
-  BUILD_MODE=true
+# Rebuild flag check
+if [[ "$1" == "--rebuild" ]]; then
+  REBUILD_MODE=true
 fi
 
-# Check if image exists
-if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
-  echo "📦 Docker image '$IMAGE_NAME' not found. Forcing build..."
-  BUILD_MODE=true
-fi
-
-if [ "$BUILD_MODE" = true ]; then
-  echo "🧼 Removing old Docker image: $IMAGE_NAME (if it exists)..."
-  docker rmi $IMAGE_NAME 2>/dev/null || true
-  echo "🏗️ Building and starting fresh containers with Docker Compose..."
-  docker-compose -f "$SCRIPT_DIR/docker-compose.yml" up -d --build
+if [ "$REBUILD_MODE" = true ]; then
+  echo "🔁 --rebuild flag passed. Removing and rebuilding image..."
+  $DOCKER_BIN rmi "$IMAGE_NAME" 2>/dev/null || true
+  echo "🏗️ Rebuilding image and starting containers..."
+  $DOCKER_COMPOSE_BIN -f "$SCRIPT_DIR/docker-compose.yml" up -d --build
 else
-  echo "🚀 Starting containers with existing images..."
-  docker-compose -f "$SCRIPT_DIR/docker-compose.yml" up -d
+  echo "🧪 Checking if Docker image '$IMAGE_NAME' exists..."
+  if ! $DOCKER_BIN image inspect "$IMAGE_NAME" > /dev/null 2>&1; then
+    echo "❌ Image not found. Please run with --rebuild to build it."
+    $DOCKER_BIN images  # for debug
+    exit 1
+  else
+    echo "✅ Image found. Starting containers..."
+    $DOCKER_COMPOSE_BIN -f "$SCRIPT_DIR/docker-compose.yml" up -d
+  fi
 fi
 
 echo ""
