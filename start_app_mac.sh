@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Full path to docker-compose binary
+# Explicit paths
 DOCKER_COMPOSE_BIN="/usr/local/bin/docker-compose"
 DOCKER_BIN="/usr/local/bin/docker"
 
@@ -9,10 +9,18 @@ IMAGE_NAME="address_verify"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 REBUILD_MODE=false
 
-# Optional if cron-based or running outside of full shell
+# Add common binary paths (important for cron/launchctl)
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 
-# Rebuild flag check
+# ⏳ Fixed 2-minute wait with progress output
+echo "⏳ Waiting 2 minutes for Docker to be ready..."
+for ((i=0; i<120; i+=5)); do
+  echo "🕒 Waiting... (${i}s elapsed)"
+  sleep 5
+done
+echo "✅ Wait complete. Proceeding..."
+
+# Check for --rebuild
 if [[ "$1" == "--rebuild" ]]; then
   REBUILD_MODE=true
 fi
@@ -26,7 +34,7 @@ else
   echo "🧪 Checking if Docker image '$IMAGE_NAME' exists..."
   if ! $DOCKER_BIN image inspect "$IMAGE_NAME" > /dev/null 2>&1; then
     echo "❌ Image not found. Please run with --rebuild to build it."
-    $DOCKER_BIN images  # for debug
+    $DOCKER_BIN images
     exit 1
   else
     echo "✅ Image found. Starting containers..."
