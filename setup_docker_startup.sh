@@ -1,34 +1,24 @@
 #!/bin/bash
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-IMAGE_NAME="address_verify"
-REBUILD_MODE=false
+SCRIPT_PATH="/Users/user/docker/address-verify/start_app_mac.sh"
+CRON_LOG="/tmp/addressverify.out"
 
-# Optional for launchd environments
-export DOCKER_HOST=unix:///Users/user/.docker/run/docker.sock
-
-# Check for --rebuild flag
-if [[ "$1" == "--rebuild" ]]; then
-  REBUILD_MODE=true
+echo "🧹 Removing old LaunchAgent if it exists..."
+PLIST_PATH="$HOME/Library/LaunchAgents/com.addressverify.startup.plist"
+if [ -f "$PLIST_PATH" ]; then
+  launchctl unload "$PLIST_PATH" 2>/dev/null
+  rm -f "$PLIST_PATH"
+  echo "✅ Removed LaunchAgent: $PLIST_PATH"
 fi
 
-if [ "$REBUILD_MODE" = true ]; then
-  echo "🔁 --rebuild flag passed. Removing and rebuilding image..."
-  docker rmi "$IMAGE_NAME" 2>/dev/null || true
-  echo "🏗️ Rebuilding image and starting containers..."
-  docker-compose -f "$SCRIPT_DIR/docker-compose.yml" up -d --build
-else
-  echo "🧪 Checking if Docker image '$IMAGE_NAME' exists..."
-  if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
-    echo "❌ Image not found. Please run with --rebuild to build it."
-    exit 1
-  else
-    echo "✅ Image found. Starting containers..."
-    docker-compose -f "$SCRIPT_DIR/docker-compose.yml" up -d
-  fi
-fi
+echo "📝 Adding @reboot cron job..."
+CRON_JOB="@reboot /bin/bash \"$SCRIPT_PATH\" >> \"$CRON_LOG\" 2>&1"
 
+# Avoid duplicate entries
+(crontab -l 2>/dev/null | grep -v 'start_app_mac.sh'; echo "$CRON_JOB") | crontab -
+
+echo "✅ Cron job added:"
+echo "$CRON_JOB"
 echo ""
-echo "✅ Setup complete!"
-echo "👉 Node.js app:     http://localhost:3000"
-echo "👉 Python backend:  http://localhost:8000"
+echo "💡 It will run automatically on reboot."
+echo "📄 Logs: $CRON_LOG"
