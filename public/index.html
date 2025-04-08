@@ -6,111 +6,332 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Pico CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Custom styles */
+    /* Base styles */
     :root {
-      --spinner-color: var(--primary);
+      --primary-color: #4CAF50;
+      --primary-hover: #3e8e41;
+      --accent-color: #4299e1;
+      --dark-bg: #1a1f2b;
+      --darker-bg: #141824;
+      --card-bg: #222836;
+      --border-radius: 8px;
+      --transition: all 0.3s ease;
+      --header-height: 70px;
+      --sidebar-width: 280px;
     }
 
     [data-theme="dark"] {
+      --background-color: var(--dark-bg);
+      --card-background-color: var(--card-bg);
+      --card-sectionning-background-color: var(--darker-bg);
+      --primary: var(--accent-color);
       --spinner-color: #fff;
     }
 
+    [data-theme="light"] {
+      --background-color: #f8f9fa;
+      --card-background-color: #ffffff;
+      --card-sectionning-background-color: #f1f3f5;
+      --primary: var(--accent-color);
+      --spinner-color: var(--primary);
+      --text-color: #333;
+      --label-color: #666;
+      --border-color: #e2e8f0;
+    }
+
     body {
-      padding: 1rem;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background-color: var(--background-color);
     }
 
-    #container {
-      max-width: 600px;
-      margin: 0 auto;
+    /* Layout */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .app-header {
+      background-color: var(--card-background-color);
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      flex-grow: 1;
+      white-space: nowrap;
+    }
+
+    /* Main content */
+    .app-content {
+      display: flex;
+      flex: 1;
+      margin-top: var(--header-height);
+    }
+
+    /* Sidebar */
+    .app-sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--card-background-color);
       padding: 2rem;
-      border-radius: 8px;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: var(--header-height);
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+      transition: var(--transition);
+      z-index: 90;
+      border-right: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
     }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
+    /* Main area */
+    .app-main {
+      flex: 1;
+      padding: 2rem;
+      margin-left: var(--sidebar-width);
+      transition: var(--transition);
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      .app-sidebar {
+        transform: translateX(-100%);
+        z-index: 110;
+      }
+
+      .app-sidebar.active {
+        transform: translateX(0);
+      }
+
+      .app-main {
+        margin-left: 0;
+        padding: 1.5rem;
+      }
+
+      .app-header {
+        padding: 0 1.5rem;
+      }
+    }
+
+    /* Form elements */
+    .search-form {
+      margin-bottom: 2rem;
+    }
+
+    .search-form label {
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      display: block;
+      color: var(--text-color, inherit);
     }
 
     .input-group {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
+      gap: 0.75rem;
     }
 
     .input-group input {
       margin-bottom: 0;
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1rem;
+      background-color: var(--card-sectionning-background-color);
+      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+      transition: var(--transition);
     }
 
-    /* Fix alignment of button and input */
+    .input-group input:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+    }
+
+    /* Button styles */
+    button {
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
     #submitButton {
-      margin: 0;
-      height: 100%;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      height: auto;
+      white-space: nowrap;
     }
 
-    /* Updated result section styling */
-    #result {
-      margin-top: 1.5rem;
-      padding: 1.5rem;
-      border-radius: 8px;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    #submitButton:hover {
+      background-color: var(--primary-hover);
     }
 
-    [data-theme="dark"] #result {
-      background-color: rgba(30, 35, 40, 0.5);
+    .success {
+      background-color: var(--primary-color) !important;
     }
 
-    #municipal_type {
-      font-size: 1.75rem;
-      font-weight: 500;
-      margin-bottom: 2rem;
-      color: var(--primary);
-      letter-spacing: -0.02em;
+    .error {
+      background-color: #e53e3e !important;
     }
 
-    /* Style for all sections in the result */
-    #result > div {
-      margin-bottom: 1.5rem;
+    /* Menu toggle button */
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      margin-right: 1rem;
+      color: var(--text-color, white);
     }
 
-    /* Basic info styling */
-    #result p {
-      margin: 0.5rem 0;
-      font-size: 1.125rem;
-      line-height: 1.4;
-      display: flex;
-      align-items: baseline;
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
     }
 
-    #result p::before {
-      content: attr(data-label);
-      font-weight: 500;
-      min-width: 140px;
-      color: var(--primary);
-    }
-
-    /* Section headers */
-    #result h3 {
+    /* Theme toggle */
+    .theme-switch {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
       font-size: 1.25rem;
+      outline: none;
+      box-shadow: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 1rem;
+      color: var(--text-color, white);
+    }
+
+    .theme-switch:hover, .theme-switch:focus {
+      background: none;
+      border: none;
+      box-shadow: none;
+    }
+
+    [data-theme="light"] .theme-switch {
+      color: #333;
+    }
+
+    [data-theme="light"] .menu-toggle {
+      color: #333;
+    }
+
+    /* Results section */
+    .results-container {
+      background-color: var(--card-background-color);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: var(--transition);
+      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+    }
+
+    .results-header {
+      background-color: var(--darker-bg);
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+    }
+
+    [data-theme="light"] .results-header {
+      background-color: var(--card-sectionning-background-color);
+    }
+
+    .results-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--accent-color);
+    }
+
+    .results-body {
+      padding: 2rem;
+    }
+
+    .results-section {
+      margin-bottom: 2rem;
+    }
+
+    .results-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      color: var(--accent-color);
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title .material-icons {
+      margin-right: 0.5rem;
+      font-size: 1.25rem;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .data-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .data-item {
+      margin-bottom: 1rem;
+    }
+
+    .data-label {
+      font-size: 0.875rem;
+      color: var(--label-color, rgba(255, 255, 255, 0.6));
+      margin-bottom: 0.25rem;
+    }
+
+    .data-value {
+      font-size: 1.125rem;
       font-weight: 500;
-      margin: 1.5rem 0 1rem;
-      color: var(--primary);
-      letter-spacing: -0.01em;
+      color: var(--text-color, inherit);
     }
 
-    /* Property and Environmental data sections */
-    #property_data,
-    #environmental_data {
-      padding-top: 0.5rem;
-    }
-
+    /* Spinner */
     .spinner {
       display: inline-block;
       width: 1rem;
       height: 1rem;
-      border: 0.2rem solid rgba(var(--spinner-color), 0.3);
-      border-top: 0.2rem solid var(--spinner-color);
+      border: 0.2rem solid rgba(255, 255, 255, 0.2);
+      border-top: 0.2rem solid white;
       border-radius: 50%;
       margin-right: 0.5rem;
       animation: spin 1s linear infinite;
@@ -121,66 +342,84 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Theme toggle - removed border */
-    .theme-switch {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0.5rem;
-      font-size: 1.25rem;
-      outline: none;
-      box-shadow: none;
+    /* Overlay for mobile menu */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      display: none;
     }
 
-    .theme-switch:hover, .theme-switch:focus {
-      background: none;
-      border: none;
-      box-shadow: none;
-    }
-
-    /* Button states */
-    .success {
-      background-color: var(--form-element-valid-active-border-color) !important;
-      color: white;
-    }
-
-    .error {
-      background-color: var(--form-element-invalid-active-border-color) !important;
-      color: white;
+    .overlay.active {
+      display: block;
     }
   </style>
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZGoN5IxgQlg5ECqEEbjkf_sfJptW5QD4&libraries=places"></script>
 </head>
 <body>
-  <button class="theme-switch" aria-label="Toggle theme">☀️</button>
-  
-  <main class="container">
-    <div id="container">
-      <h1>Address Lookup</h1>
-      
-      <label for="addressInput">Enter Address:</label>
-      <div class="input-group">
-        <input type="text" id="addressInput" placeholder="2600 16th St, Sacramento, CA">
-        
-        <input type="hidden" id="cityInput" name="cityInput" />
-        <input type="hidden" id="zipcodeInput" name="zipcodeInput" />
-        <input type="hidden" id="stateInput" name="stateInput" />
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <span class="material-icons">menu</span>
+      </button>
+      <h1 class="app-title">Address Lookup</h1>
+      <button class="theme-switch" aria-label="Toggle theme">
+        <span class="material-icons">light_mode</span>
+      </button>
+    </header>
 
-        <button id="submitButton">
-          <span id="spinner" class="spinner" style="display: none;"></span>
-          Submit Address
-        </button>
-      </div>
-      
-      <article id="result" style="display: none;"></article>
+    <!-- Main content -->
+    <div class="app-content">
+      <!-- Sidebar -->
+      <aside class="app-sidebar">
+        <div class="search-form">
+          <label for="addressInput">Enter Address:</label>
+          <div class="input-group">
+            <input type="text" id="addressInput" placeholder="2600 16th St, Sacramento, CA">
+            
+            <input type="hidden" id="cityInput" name="cityInput" />
+            <input type="hidden" id="zipcodeInput" name="zipcodeInput" />
+            <input type="hidden" id="stateInput" name="stateInput" />
+          </div>
+          <button id="submitButton" style="width: 100%; margin-top: 1rem;">
+            <span id="spinner" class="spinner" style="display: none;"></span>
+            Submit Address
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main area -->
+      <main class="app-main">
+        <div id="result" style="display: none;"></div>
+      </main>
     </div>
-  </main>
+
+    <!-- Overlay for mobile menu -->
+    <div class="overlay"></div>
+  </div>
 
   <script>
+    // Mobile menu toggle
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.app-sidebar');
+    const overlay = document.querySelector('.overlay');
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+
     // Theme toggle functionality
     const themeToggle = document.querySelector('.theme-switch');
     const htmlElement = document.documentElement;
@@ -202,7 +441,9 @@
     });
     
     function updateThemeIcon(theme) {
-      themeToggle.textContent = theme === 'light' ? '🌓' : '☀️';
+      themeToggle.innerHTML = theme === 'light' ? 
+        '<span class="material-icons">dark_mode</span>' : 
+        '<span class="material-icons">light_mode</span>';
     }
 
     // Address lookup functionality
@@ -257,6 +498,12 @@
           }
           
           showData(all_data);
+          
+          // On mobile, close the sidebar after search
+          if (window.innerWidth <= 768) {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+          }
         } catch (error) {
           // Enable the button and hide the spinner
           submitButton.disabled = false;
@@ -270,7 +517,13 @@
         }
       } else {
         resultDiv.style.display = "block";
-        resultDiv.innerHTML = `<p style="color: var(--form-element-invalid-active-border-color);">Please enter an address</p>`;
+        resultDiv.innerHTML = `
+          <div class="results-container">
+            <div class="results-body">
+              <p style="color: #e53e3e;">Please enter an address</p>
+            </div>
+          </div>
+        `;
       }
     }
 
@@ -322,7 +575,7 @@
       }
     }
 
-    // Update the showData function to use data attributes for labels
+    // Update the showData function to use the new UI structure
     function showData(all_data) {
       let data = all_data.usgeocoder;
       let propertyData = all_data.melissa;
@@ -330,7 +583,7 @@
       let cliemate_zone = all_data.cliemate_zone;
       let environmentalData = all_data.environmentalData;
 
-      console.log(environmentalData)
+      console.log(environmentalData);
 
       if (environmentalData != null) {
         var windSpeed = environmentalData.wind_speed ?? "No Data";
@@ -386,15 +639,44 @@
           const melissaGlobalRecord = melissa_global.Records[0];        
 
           let html = `
-            <div id="municipal_type">Jurisdiction: ${municipalType}</div>
-            <div>
-              <p data-label="Climate Zone: ">${cliemate_zone || "Not Found"}</p>
-              <p data-label="Street: ">${melissaGlobalRecord.FormattedAddress ? melissaGlobalRecord.FormattedAddress.split(';')[0] : "Not Found"}</p>
-              <p data-label="City: ">${melissaGlobalRecord.Locality || "Not Found"}</p>
-              <p data-label="County: ">${melissaGlobalRecord.SubAdministrativeArea || "Not Found"}</p>
-              <p data-label="State: ">${melissaGlobalRecord.AdministrativeArea || "Not Found"}</p>
-              <p data-label="Zip Code: ">${melissaGlobalRecord.PostalCode || "Not Found"}</p>
-            </div>
+            <div class="results-container">
+              <div class="results-header">
+                <h2 class="results-title">Jurisdiction: ${municipalType}</h2>
+              </div>
+              <div class="results-body">
+                <!-- Location Information -->
+                <div class="results-section">
+                  <h3 class="section-title">
+                    <span class="material-icons">location_on</span>
+                    Location Information
+                  </h3>
+                  <div class="data-grid">
+                    <div class="data-item">
+                      <div class="data-label">Climate Zone</div>
+                      <div class="data-value">${cliemate_zone || "Not Found"}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">Street</div>
+                      <div class="data-value">${melissaGlobalRecord.FormattedAddress ? melissaGlobalRecord.FormattedAddress.split(';')[0] : "Not Found"}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">City</div>
+                      <div class="data-value">${melissaGlobalRecord.Locality || "Not Found"}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">County</div>
+                      <div class="data-value">${melissaGlobalRecord.SubAdministrativeArea || "Not Found"}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">State</div>
+                      <div class="data-value">${melissaGlobalRecord.AdministrativeArea || "Not Found"}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">Zip Code</div>
+                      <div class="data-value">${melissaGlobalRecord.PostalCode || "Not Found"}</div>
+                    </div>
+                  </div>
+                </div>
           `;
           
           resultDiv.style.display = "block";
@@ -411,41 +693,104 @@
           const totalRooms = propertyRecord.IntRoomInfo.RoomsCount;
 
           const propertyHtml = `
-            <div id="property_data">
-              <h3>Property Information</h3>
-              <p data-label="APN: ">${apn}</p>
-              <p data-label="Owner: ">${owner}</p>
-              <p data-label="Year Built: ">${yearBuilt}</p>
-              <p data-label="Square Feet: ">${livableSquareFeet}</p>
-              <p data-label="Lot Size (SF): ">${lotSizeSF}</p>
-              <p data-label="Bedrooms: ">${bedrooms}</p>
-              <p data-label="Total Rooms: ">${totalRooms}</p>
+            <!-- Property Information -->
+            <div class="results-section">
+              <h3 class="section-title">
+                <span class="material-icons">home</span>
+                Property Information
+              </h3>
+              <div class="data-grid">
+                <div class="data-item">
+                  <div class="data-label">APN</div>
+                  <div class="data-value">${apn}</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Owner</div>
+                  <div class="data-value">${owner}</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Year Built</div>
+                  <div class="data-value">${yearBuilt}</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Square Feet</div>
+                  <div class="data-value">${livableSquareFeet}</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Lot Size (SF)</div>
+                  <div class="data-value">${lotSizeSF}</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Bedrooms</div>
+                  <div class="data-value">${bedrooms}</div>
+                </div>
+                <div class="data-item">
+                  <div class="data-label">Total Rooms</div>
+                  <div class="data-value">${totalRooms}</div>
+                </div>
+              </div>
             </div>
           `;
 
           // Append property data to the resultDiv
-          resultDiv.innerHTML += propertyHtml;
+          resultDiv.querySelector('.results-body').innerHTML += propertyHtml;
 
           if (environmentalData != null) {
             const environmentalHtml = `
-              <div id="environmental_data">
-                <h3>Environmental Information</h3>
-                <p data-label="Wind Speed: ">${windSpeed}</p>
-                <p data-label="Seismic SDS: ">${seismicSDS}</p>
-                <p data-label="Seismic Design Category: ">${seismicDesignCategory}</p>
-                <p data-label="Ground Snow Load: ">${groundSnowLoad}</p>
-                <p data-label="Flood Zone: ">${floodZone}</p>
+              <!-- Design Criteria -->
+              <div class="results-section">
+                <h3 class="section-title">
+                  <span class="material-icons">eco</span>
+                  Design Criteria
+                </h3>
+                <div class="data-grid">
+                  <div class="data-item">
+                    <div class="data-label">Wind Speed</div>
+                    <div class="data-value">${windSpeed}</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Seismic SDS</div>
+                    <div class="data-value">${seismicSDS}</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Seismic Design Category</div>
+                    <div class="data-value">${seismicDesignCategory}</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Ground Snow Load</div>
+                    <div class="data-value">${groundSnowLoad}</div>
+                  </div>
+                  <div class="data-item">
+                    <div class="data-label">Flood Zone</div>
+                    <div class="data-value">${floodZone}</div>
+                  </div>
+                </div>
               </div>
             `;
-            resultDiv.innerHTML += environmentalHtml;
+            resultDiv.querySelector('.results-body').innerHTML += environmentalHtml;
           }
+          
+          // Close the results container
+          resultDiv.querySelector('.results-body').innerHTML += `</div>`;
         } else {
           resultDiv.style.display = "block";
-          resultDiv.innerHTML = `<p style="color: var(--form-element-invalid-active-border-color);">Data not available or invalid address</p>`;
+          resultDiv.innerHTML = `
+            <div class="results-container">
+              <div class="results-body">
+                <p style="color: #e53e3e;">Data not available or invalid address</p>
+              </div>
+            </div>
+          `;
         }
       } else {
         resultDiv.style.display = "block";
-        resultDiv.innerHTML = `<p style="color: var(--form-element-invalid-active-border-color);">Data not available or invalid address</p>`;
+        resultDiv.innerHTML = `
+          <div class="results-container">
+            <div class="results-body">
+              <p style="color: #e53e3e;">Data not available or invalid address</p>
+            </div>
+          </div>
+        `;
       }
     }
 
@@ -484,4 +829,3 @@
   </script>
 </body>
 </html>
-
