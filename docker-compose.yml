@@ -1,6 +1,8 @@
-version: '3'
 services:
   address_verify:
+    container_name: address_verify
+    build: .
     image: address_verify
     ports:
-      - 3000:3000
+      - "3000:3000"  # Node.js app
+      - "8000:8000"  # Python app

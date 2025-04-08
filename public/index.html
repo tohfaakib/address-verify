@@ -333,12 +333,6 @@
       console.log(environmentalData)
 
       if (environmentalData != null) {
-        var elevation = environmentalData.elevation ?? "No Data";
-        var latitude = environmentalData.latitude ?? "No Data";
-        var longitude = environmentalData.longitude ?? "No Data";
-        var standard = environmentalData.standard ?? "No Data";
-        var riskCategory = environmentalData.riskCategory ?? "No Data";
-        var soilClass = environmentalData.soilClass ?? "No Data";
         var windSpeed = environmentalData.wind_speed ?? "No Data";
         var seismicSDS = environmentalData.sds ?? "No Data";
         var seismicDesignCategory = environmentalData.seismic_design_category ?? "No Data";
@@ -436,21 +430,11 @@
             const environmentalHtml = `
               <div id="environmental_data">
                 <h3>Environmental Information</h3>
-                <p data-label="Elevation: ">${elevation}</p>
-                <p data-label="Latitude: ">${latitude}</p>
-                <p data-label="Longitude: ">${longitude}</p>
-                <p data-label="Standard: ">${standard}</p>
-                <p data-label="Risk Category: ">${riskCategory}</p>
-                <p data-label="Soil Class: ">${soilClass}</p>
                 <p data-label="Wind Speed: ">${windSpeed}</p>
                 <p data-label="Seismic SDS: ">${seismicSDS}</p>
                 <p data-label="Seismic Design Category: ">${seismicDesignCategory}</p>
-                <p data-label="Ice Thickness: ">${iceThickness}</p>
                 <p data-label="Ground Snow Load: ">${groundSnowLoad}</p>
-                <p data-label="Rain 15 Min: ">${rain15Min}</p>
-                <p data-label="Rain 60 Min: ">${rain60Min}</p>
                 <p data-label="Flood Zone: ">${floodZone}</p>
-                <p data-label="Tsunami Risk: ">${tsunamiRisk}</p>
               </div>
             `;
             resultDiv.innerHTML += environmentalHtml;
