@@ -1,50 +1,34 @@
 #!/bin/bash
 
-APP_SCRIPT="/Users/user/docker/address-verify/start_app_mac.sh"
-PLIST_NAME="com.addressverify.startup"
-PLIST_PATH="$HOME/Library/LaunchAgents/$PLIST_NAME.plist"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+IMAGE_NAME="address_verify"
+REBUILD_MODE=false
 
-echo "🛠 Creating LaunchAgent plist at $PLIST_PATH..."
+# Optional for launchd environments
+export DOCKER_HOST=unix:///Users/user/.docker/run/docker.sock
 
-cat <<EOF > "$PLIST_PATH"
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
- "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>$PLIST_NAME</string>
-
-  <key>ProgramArguments</key>
-  <array>
-    <string>/bin/bash</string>
-    <string>$APP_SCRIPT</string>
-  </array>
-
-  <key>RunAtLoad</key>
-  <true/>
-
-  <key>StandardOutPath</key>
-  <string>/tmp/addressverify.out</string>
-
-  <key>StandardErrorPath</key>
-  <string>/tmp/addressverify.err</string>
-</dict>
-</plist>
-EOF
-
-echo "📦 Loading LaunchAgent..."
-launchctl unload "$PLIST_PATH" 2>/dev/null || true
-launchctl load "$PLIST_PATH"
-
-echo "✅ Startup script registered with macOS!"
-echo "📄 Logs will be written to:"
-echo "   stdout: /tmp/addressverify.out"
-echo "   stderr: /tmp/addressverify.err"
-
-# Optional: Start immediately to test
-read -p "🚀 Do you want to test the launch now? [y/N] " run_now
-if [[ "$run_now" == "y" || "$run_now" == "Y" ]]; then
-  launchctl start "$PLIST_NAME"
-  echo "🎉 Started. Check logs in /tmp."
+# Check for --rebuild flag
+if [[ "$1" == "--rebuild" ]]; then
+  REBUILD_MODE=true
 fi
+
+if [ "$REBUILD_MODE" = true ]; then
+  echo "🔁 --rebuild flag passed. Removing and rebuilding image..."
+  docker rmi "$IMAGE_NAME" 2>/dev/null || true
+  echo "🏗️ Rebuilding image and starting containers..."
+  docker-compose -f "$SCRIPT_DIR/docker-compose.yml" up -d --build
+else
+  echo "🧪 Checking if Docker image '$IMAGE_NAME' exists..."
+  if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
+    echo "❌ Image not found. Please run with --rebuild to build it."
+    exit 1
+  else
+    echo "✅ Image found. Starting containers..."
+    docker-compose -f "$SCRIPT_DIR/docker-compose.yml" up -d
+  fi
+fi
+
+echo ""
+echo "✅ Setup complete!"
+echo "👉 Node.js app:     http://localhost:3000"
+echo "👉 Python backend:  http://localhost:8000"
