@@ -4,21 +4,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 IMAGE_NAME="address_verify"
 BUILD_MODE=false
 
-MAX_WAIT=120  # max 2 minutes
-ELAPSED=0
-
-while ! docker info >/dev/null 2>&1; do
-    echo "⏳ Waiting for Docker to start... (${ELAPSED}s elapsed)"
-    sleep 5
-    ELAPSED=$((ELAPSED+5))
-    if [ $ELAPSED -ge $MAX_WAIT ]; then
-        echo "❌ Docker did not start within $MAX_WAIT seconds. Exiting."
-        exit 1
-    fi
-done
-
-echo "🐳 Docker is running!"
-
+# Optional: helpful for launchd context
+export DOCKER_HOST=unix:///Users/user/.docker/run/docker.sock
 
 # Check for --build flag
 if [[ "$1" == "--build" ]]; then
