@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html data-theme="dark">
+<head>
+  <title>Address Lookup</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Pico CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Base styles */
+    :root {
+      --primary-color: #4CAF50;
+      --primary-hover: #3e8e41;
+      --accent-color: #4299e1;
+      --dark-bg: #1a1f2b;
+      --darker-bg: #141824;
+      --card-bg: #222836;
+      --border-radius: 8px;
+      --transition: all 0.3s ease;
+      --header-height: 70px;
+      --sidebar-width: 280px;
+    }
+
+    [data-theme="dark"] {
+      --background-color: var(--dark-bg);
+      --card-background-color: var(--card-bg);
+      --card-sectionning-background-color: var(--darker-bg);
+      --primary: var(--accent-color);
+      --spinner-color: #fff;
+    }
+
+    [data-theme="light"] {
+      --background-color: #f8f9fa;
+      --card-background-color: #ffffff;
+      --card-sectionning-background-color: #f1f3f5;
+      --primary: var(--accent-color);
+      --spinner-color: var(--primary);
+      --text-color: #333;
+      --label-color: #666;
+      --border-color: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background-color: var(--background-color);
+    }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .app-header {
+      background-color: var(--card-background-color);
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      flex-grow: 1;
+      white-space: nowrap;
+    }
+
+    /* Main content */
+    .app-content {
+      display: flex;
+      flex: 1;
+      margin-top: var(--header-height);
+    }
+
+    /* Sidebar */
+    .app-sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--card-background-color);
+      padding: 2rem;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: var(--header-height);
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+      transition: var(--transition);
+      z-index: 90;
+      border-right: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+    }
+
+    /* Main area */
+    .app-main {
+      flex: 1;
+      padding: 2rem;
+      margin-left: var(--sidebar-width);
+      transition: var(--transition);
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      .app-sidebar {
+        transform: translateX(-100%);
+        z-index: 110;
+      }
+
+      .app-sidebar.active {
+        transform: translateX(0);
+      }
+
+      .app-main {
+        margin-left: 0;
+        padding: 1.5rem;
+      }
+
+      .app-header {
+        padding: 0 1.5rem;
+      }
+    }
+
+    /* Form elements */
+    .search-form {
+      margin-bottom: 2rem;
+    }
+
+    .search-form label {
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      display: block;
+      color: var(--text-color, inherit);
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .input-group input {
+      margin-bottom: 0;
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1rem;
+      background-color: var(--card-sectionning-background-color);
+      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+      transition: var(--transition);
+    }
+
+    .input-group input:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+    }
+
+    /* Button styles */
+    button {
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    #submitButton {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      height: auto;
+      white-space: nowrap;
+    }
+
+    #submitButton:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .success {
+      background-color: var(--primary-color) !important;
+    }
+
+    .error {
+      background-color: #e53e3e !important;
+    }
+
+    /* Menu toggle button */
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      margin-right: 1rem;
+      color: var(--text-color, white);
+    }
+
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
+    }
+
+    /* Theme toggle */
+    .theme-switch {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      font-size: 1.25rem;
+      outline: none;
+      box-shadow: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 1rem;
+      color: var(--text-color, white);
+    }
+
+    .theme-switch:hover, .theme-switch:focus {
+      background: none;
+      border: none;
+      box-shadow: none;
+    }
+
+    [data-theme="light"] .theme-switch {
+      color: #333;
+    }
+
+    [data-theme="light"] .menu-toggle {
+      color: #333;
+    }
+
+    /* Results section */
+    .results-container {
+      background-color: var(--card-background-color);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: var(--transition);
+      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+    }
+
+    .results-header {
+      background-color: var(--darker-bg);
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
+    }
+
+    [data-theme="light"] .results-header {
+      background-color: var(--card-sectionning-background-color);
+    }
+
+    .results-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--accent-color);
+    }
+
+    .results-body {
+      padding: 2rem;
+    }
+
+    .results-section {
+      margin-bottom: 2rem;
+    }
+
+    .results-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      color: var(--accent-color);
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title .material-icons {
+      margin-right: 0.5rem;
+      font-size: 1.25rem;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .data-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .data-item {
+      margin-bottom: 1rem;
+    }
+
+    .data-label {
+      font-size: 0.875rem;
+      color: var(--label-color, rgba(255, 255, 255, 0.6));
+      margin-bottom: 0.25rem;
+    }
+
+    .data-value {
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: var(--text-color, inherit);
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 0.2rem solid rgba(255, 255, 255, 0.2);
+      border-top: 0.2rem solid white;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Overlay for mobile menu */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+  </style>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZGoN5IxgQlg5ECqEEbjkf_sfJptW5QD4&libraries=places"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <button class="menu-toggle" aria-label="Toggle menu">
+        <span class="material-icons">menu</span>
+      </button>
+      <h1 class="app-title">Address Lookup</h1>
+      <button class="theme-switch" aria-label="Toggle theme">
+        <span class="material-icons">light_mode</span>
+      </button>
+    </header>
+
+    <!-- Main content -->
+    <div class="app-content">
+      <!-- Sidebar -->
+      <aside class="app-sidebar">
+        <div class="search-form">
+          <label for="addressInput">Enter Address:</label>
+          <div class="input-group">
+            <input type="text" id="addressInput" placeholder="2600 16th St, Sacramento, CA">
+            
+            <input type="hidden" id="cityInput" name="cityInput" />
+            <input type="hidden" id="zipcodeInput" name="zipcodeInput" />
+            <input type="hidden" id="stateInput" name="stateInput" />
+          </div>
+          <button id="submitButton" style="width: 100%; margin-top: 1rem;">
+            <span id="spinner" class="spinner" style="display: none;"></span>
+            Submit Address
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main area -->
+      <main class="app-main">
+        <div id="result" style="display: none;"></div>
+      </main>
+    </div>
+
+    <!-- Overlay for mobile menu -->
+    <div class="overlay"></div>
+  </div>
+
+  <script>
+    // Mobile menu toggle
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.app-sidebar');
+    const overlay = document.querySelector('.overlay');
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+
+    // Theme toggle functionality
+    const themeToggle = document.querySelector('.theme-switch');
+    const htmlElement = document.documentElement;
+    
+    // Set dark theme as default, override saved preference
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    // Apply the saved theme
+    htmlElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      htmlElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+    
+    function updateThemeIcon(theme) {
+      themeToggle.innerHTML = theme === 'light' ? 
+        '<span class="material-icons">dark_mode</span>' : 
+        '<span class="material-icons">light_mode</span>';
+    }
+
+    // Address lookup functionality
+    const addressInput = document.getElementById("addressInput");
+    const resultDiv = document.getElementById("result");
+    const submitButton = document.getElementById("submitButton");
+
+    submitButton.addEventListener("click", fetchData);
+
+    async function fetchData() {
+      const address = addressInput.value.trim();
+      const city = document.getElementById("cityInput").value;
+      const zipcode = document.getElementById("zipcodeInput").value;
+      const state = document.getElementById("stateInput").value;
+      
+      if (address !== "") {
+        // Disable the button and show the spinner
+        submitButton.disabled = true;
+        
+        try {
+          document.getElementById("spinner").style.display = "inline-block";
+        } catch (error) {
+          let sub_btn = document.getElementById("submitButton");
+          sub_btn.classList.remove("success", "error");
+          sub_btn.innerHTML = '<span id="spinner" class="spinner" style="display: none;"></span> Submit Address';
+          document.getElementById("spinner").style.display = "inline-block";
+        }
+
+        const dataToSend = {
+          address,
+          city,
+          zipcode,
+          state,
+        };
+        
+        try {
+          const response = await fetch("/get_data", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ dataToSend })
+          });
+          const all_data = await response.json();
+
+          // Enable the button and hide the spinner
+          submitButton.disabled = false;
+          try {
+            document.getElementById("spinner").style.display = "none";
+          } catch (error) {
+            console.log("couldn't find spinner to hide!");
+          }
+          
+          showData(all_data);
+          
+          // On mobile, close the sidebar after search
+          if (window.innerWidth <= 768) {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+          }
+        } catch (error) {
+          // Enable the button and hide the spinner
+          submitButton.disabled = false;
+          try {
+            document.getElementById("spinner").style.display = "none";
+          } catch (error) {
+            console.log("couldn't find spinner to hide!");
+          }
+          console.error(error);
+          showData({ error: "Something went wrong" });
+        }
+      } else {
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `
+          <div class="results-container">
+            <div class="results-body">
+              <p style="color: #e53e3e;">Please enter an address</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function checkIfMultipleKeysExist(inputJSON) {
+      const parsedJSON = inputJSON;
+      try {
+        if (parsedJSON.Records && parsedJSON.Records[0]) {
+          const recordKeys = Object.keys(parsedJSON.Records[0]);
+          return recordKeys.length > 1;
+        } else {
+          return false;
+        }
+      } catch (error) {
+        console.log("Error parsing JSON:", error);
+        return false;
+      }
+    }
+
+    function formatLocation(inputText) {
+      const words = inputText.trim().split(' ');
+      const lastWord = words[words.length - 1].toLowerCase();
+
+      if (lastWord === 'city' || lastWord === 'town') {
+        const locationName = words.slice(0, -1).join(' ');
+        const formattedLocation = `${lastWord.charAt(0).toUpperCase() + lastWord.slice(1)} of ${locationName}`;
+        return formattedLocation;
+      } else {
+        return inputText;
+      }
+    }
+
+    function toTitleCase(str) {
+      return str.replace(/\w\S*/g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+    }
+
+    function roundToTwoDecimalPlaces(inputStr) {
+      // Parse the input string to a floating-point number
+      const number = parseFloat(inputStr);
+
+      if (!isNaN(number)) {
+        // If parsing is successful, round to two decimal places
+        const roundedNumber = Math.round(number * 100) / 100;
+        return roundedNumber.toString();
+      } else {
+        // Handle invalid input, e.g., when the input string is not a valid number
+        return "Invalid input";
+      }
+    }
+
+    // Update the showData function to use the new UI structure
+function showData(all_data) {
+  const {
+    usgeocoder = null,
+    melissa = null,
+    melissa_global = null,
+    cliemate_zone = null,
+    environmentalData = null
+  } = all_data || {};
+
+  resultDiv.style.display = "block";
+  resultDiv.innerHTML = ""; // Clear previous content
+
+  // Determine button status
+  let statusIcon = "❌";
+  const is_property_data = melissa?.Records?.length > 0;
+  const addressStatus = usgeocoder?.usgeocoder?.address_info?.address_status || "Not Found";
+
+  if (addressStatus === "Match Found" && is_property_data) {
+    submitButton.classList.remove("error");
+    submitButton.classList.add("success");
+    statusIcon = "✔";
+  } else {
+    submitButton.classList.remove("success");
+    submitButton.classList.add("error");
+  }
+  submitButton.innerHTML = `${statusIcon} Submit Address`;
+
+  // Jurisdiction logic
+  let jurisdictionTitle = "Results";
+  const addressInfo = usgeocoder?.usgeocoder?.address_info;
+  const jurisdictionInfo = usgeocoder?.usgeocoder?.jurisdictions_info;
+
+  if (addressInfo) {
+    let municipalType = "Not Found";
+    const municipalStatus = jurisdictionInfo?.municipal?.municipal_status;
+    if (municipalStatus === "Match Found") {
+      municipalType = jurisdictionInfo.municipal.municipal_type;
+    } else if (addressInfo.county) {
+      municipalType = addressInfo.county + " County";
+    }
+    jurisdictionTitle = `Jurisdiction: ${formatLocation(municipalType)}`;
+  }
+
+  let html = `
+    <div class="results-container">
+      <div class="results-header">
+        <h2 class="results-title">${jurisdictionTitle}</h2>
+      </div>
+      <div class="results-body">
+  `;
+
+  // 🟦 Location Info
+  if (melissa_global?.Records?.[0]) {
+    const record = melissa_global.Records[0];
+    html += `
+      <div class="results-section">
+        <h3 class="section-title"><span class="material-icons">location_on</span> Location Information</h3>
+        <div class="data-grid">
+          <div class="data-item"><div class="data-label">Street</div><div class="data-value">${record.FormattedAddress?.split(';')[0] || 'Not Found'}</div></div>
+          <div class="data-item"><div class="data-label">City</div><div class="data-value">${record.Locality || 'Not Found'}</div></div>
+          <div class="data-item"><div class="data-label">State</div><div class="data-value">${record.AdministrativeArea || 'Not Found'}</div></div>
+          <div class="data-item"><div class="data-label">Zip</div><div class="data-value">${record.PostalCode || 'Not Found'}</div></div>
+          <div class="data-item"><div class="data-label">County</div><div class="data-value">${record.SubAdministrativeArea || 'Not Found'}</div></div>
+          <div class="data-item"><div class="data-label">Climate Zone</div><div class="data-value">${cliemate_zone || 'Not Found'}</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 🏡 Property Info
+  if (melissa?.Records?.[0]) {
+    const prop = melissa.Records[0];
+    html += `
+      <div class="results-section">
+        <h3 class="section-title"><span class="material-icons">home</span> Property Information</h3>
+        <div class="data-grid">
+          <div class="data-item"><div class="data-label">Owner</div><div class="data-value">${toTitleCase(prop.PrimaryOwner?.Name1Full || "N/A")}</div></div>
+          <div class="data-item"><div class="data-label">APN</div><div class="data-value">${prop.Parcel?.UnformattedAPN || "N/A"}</div></div>
+          <div class="data-item"><div class="data-label">Year Built</div><div class="data-value">${prop.PropertyUseInfo?.YearBuilt || "N/A"}</div></div>
+          <div class="data-item"><div class="data-label">SqFt</div><div class="data-value">${roundToTwoDecimalPlaces(prop.PropertySize?.AreaBuilding || "0")}</div></div>
+          <div class="data-item"><div class="data-label">Lot Size</div><div class="data-value">${roundToTwoDecimalPlaces(prop.PropertySize?.AreaLotSF || "0")}</div></div>
+          <div class="data-item"><div class="data-label">Bedrooms</div><div class="data-value">${prop.IntRoomInfo?.BedroomsCount || "N/A"}</div></div>
+          <div class="data-item"><div class="data-label">Total Rooms</div><div class="data-value">${prop.IntRoomInfo?.RoomsCount || "N/A"}</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 🌍 Environmental Data
+  if (environmentalData) {
+    html += `
+      <div class="results-section">
+        <h3 class="section-title"><span class="material-icons">eco</span> Design Criteria</h3>
+        <div class="data-grid">
+          <div class="data-item"><div class="data-label">Wind Speed</div><div class="data-value">${environmentalData.wind_speed}</div></div>
+          <div class="data-item"><div class="data-label">Seismic SDS</div><div class="data-value">${environmentalData.sds}</div></div>
+          <div class="data-item"><div class="data-label">Seismic Design Category</div><div class="data-value">${environmentalData.seismic_design_category}</div></div>
+          <div class="data-item"><div class="data-label">Ground Snow Load</div><div class="data-value">${environmentalData.ground_snow_load}</div></div>
+          <div class="data-item"><div class="data-label">Flood Zone</div><div class="data-value">${environmentalData.flood_zone}</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 🛑 No Valid Data Case
+  if (!melissa && !melissa_global && !environmentalData) {
+    html += `
+      <div class="results-section">
+        <p style="color: #e53e3e;">No valid data was returned for this address.</p>
+      </div>
+    `;
+  }
+
+  html += `</div></div>`; // Close results-body and results-container
+  resultDiv.innerHTML = html;
+}
+
+
+    // Initialize Google Places Autocomplete
+    function initAutocomplete() {
+      const addressInput = document.getElementById("addressInput");
+      const autocomplete = new google.maps.places.Autocomplete(addressInput);
+
+      autocomplete.addListener("place_changed", function () {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) {
+          console.error("Place details not found for the input.");
+          return;
+        }
+
+        // Extract the city, zipcode, and state from the place
+        const city = place.address_components.find(
+          (component) => component.types.includes("locality")
+        );
+        const zipcode = place.address_components.find(
+          (component) => component.types.includes("postal_code")
+        );
+        const state = place.address_components.find(
+          (component) => component.types.includes("administrative_area_level_1")
+        );
+
+        // Set the values of the hidden input fields
+        document.getElementById("cityInput").value = city ? city.long_name : "";
+        document.getElementById("zipcodeInput").value = zipcode ? zipcode.long_name : "";
+        document.getElementById("stateInput").value = state ? state.short_name : "";
+      });
+    }
+
+    // Attach the Autocomplete initialization when the page loads
+    google.maps.event.addDomListener(window, "load", initAutocomplete);
+  </script>
+</body>
+</html>

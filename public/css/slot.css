@@ -1,0 +1,35 @@
+/* Match Eventually h1 styling */
+#animated-title {
+    font-size: 3.25em;
+    font-weight: 700;
+    text-align: center;
+    color: #fff;
+    line-height: 1.25em;
+    margin: 0 0 0.55em 0;
+    height: 1.25em;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .slot-mask {
+    height: 1.25em;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .slot-items {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+  
+  .slot-item {
+    height: 1.25em;
+    line-height: 1.25em;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    text-align: left;
+  }
+  

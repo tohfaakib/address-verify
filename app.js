@@ -11,6 +11,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 
+app.get('/classic', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/classic.html'));
+});
+
+
 
 async function fetchEnvironmentalData(address) {
   const SCRAPER_API = `http://localhost:8000/scrape?address=${encodeURIComponent(address)}`;
@@ -35,69 +40,85 @@ async function fetchEnvironmentalData(address) {
 app.post('/get_data', async (req, res) => {
   try {
     const { dataToSend } = req.body;
+    const { address, city, zipcode, state } = dataToSend;
 
-    console.log("+++++++++++++++++++++")
-    console.log(dataToSend)
-    console.log("+++++++++++++++++++++")
-
-    const address = dataToSend.address;
-
-    const city = dataToSend.city;
-    const zipcode = dataToSend.zipcode;
-    const state = dataToSend.state;
-
-    street = parseAddress(address)
+    let street;
+    try {
+      street = parseAddress(address);
+    } catch (e) {
+      return res.status(400).json({ error: "Invalid address format" });
+    }
 
     const authkey = "bc447ed5abef387b50b76ad49a66d11c";
 
-    console.log("zip:", zipcode);
-
-    const url = "https://usgeocoder.com/api/get_info.php?address="+ street.street +"&zipcode=" + zipcode + "&authkey=" + authkey + "&format=json"
-
-
-    const response = await axios.get(url);
-
-    const pro_url = 'https://property.melissadata.net/v4/WEB/LookupProperty/?id=biSxhdpkI8-4KVqfEHnJ_H**nSAcwXpxhQ0PC2lXxuDAZ-**&ff=' + address + '&format=json'
-
-    const property_res = await axios.get(pro_url);
-
-    console.log("property:", property_res.data);
-
-
-    const melissa_global_url = 'https://address.melissadata.net/v3/WEB/GlobalAddress/doGlobalAddress?id=biSxhdpkI8-4KVqfEHnJ_H**nSAcwXpxhQ0PC2lXxuDAZ-**&a1=' + address + '&loc=' + city + '&ctry=USA&admarea=' + state + '&format=json'
-    console.log(melissa_global_url);
-    const global_res = await axios.get(melissa_global_url);
-
-    console.log("global res:", global_res.data);
-
-    const globalLatitude = global_res.data.Records?.[0]?.Latitude || 'Latitude not found';
-    const globalLongitude = global_res.data.Records?.[0]?.Longitude || 'Longitude not found';
-
-    console.log("Global Latitude:", globalLatitude);
-    console.log("Global Longitude:", globalLongitude);
-
-  const cliemate_zone = getCorrespondingValue(zipcode);
-  console.log(`Corresponding value: ${cliemate_zone}`);
-
-    const environmentalData = await fetchEnvironmentalData(address);
-
-
-    let all_data = {
-      "usgeocoder": response.data,
-      "melissa": property_res.data,
-      "melissa_global": global_res.data,
-      "cliemate_zone": cliemate_zone,
-      "environmentalData": environmentalData
+    // USGeocoder
+    let usgeocoderData = null;
+    try {
+      const url = `https://usgeocoder.com/api/get_info.php?address=${street.street}&zipcode=${zipcode}&authkey=${authkey}&format=json`;
+      const response = await axios.get(url);
+      usgeocoderData = response.data;
+    } catch (error) {
+      console.error("USGeocoder error:", error.message);
     }
 
-    console.log("all:", all_data);
+    // Melissa Property
+    let melissaPropertyData = null;
+    try {
+      const pro_url = `https://property.melissadata.net/v4/WEB/LookupProperty/?id=biSxhdpkI8-4KVqfEHnJ_H**nSAcwXpxhQ0PC2lXxuDAZ-**&ff=${address}&format=json`;
+      const property_res = await axios.get(pro_url);
+      melissaPropertyData = property_res.data;
+    } catch (error) {
+      console.error("Melissa Property error:", error.message);
+    }
+
+    // Melissa Global
+    let melissaGlobalData = null;
+    try {
+      const melissa_global_url = `https://address.melissadata.net/v3/WEB/GlobalAddress/doGlobalAddress?id=biSxhdpkI8-4KVqfEHnJ_H**nSAcwXpxhQ0PC2lXxuDAZ-**&a1=${address}&loc=${city}&ctry=USA&admarea=${state}&format=json`;
+      const global_res = await axios.get(melissa_global_url);
+      melissaGlobalData = global_res.data;
+    } catch (error) {
+      console.error("Melissa Global error:", error.message);
+    }
+
+    // Climate zone
+    let climateZone = null;
+    try {
+      climateZone = getCorrespondingValue(zipcode);
+    } catch (error) {
+      console.error("Climate zone lookup error:", error.message);
+    }
+
+    // Environmental data
+    let environmentalData = null;
+    try {
+      environmentalData = await fetchEnvironmentalData(address);
+    } catch (error) {
+      console.error("Environmental data error:", error.message);
+    }
+
+    const all_data = {
+      usgeocoder: usgeocoderData,
+      melissa: melissaPropertyData,
+      melissa_global: melissaGlobalData,
+      cliemate_zone: climateZone,
+      environmentalData: environmentalData
+    };
 
     res.json(all_data);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Something went wrong" });
+    console.error("Overall server error:", error.message);
+    res.status(500).json({
+      usgeocoder: null,
+      melissa: null,
+      melissa_global: null,
+      cliemate_zone: null,
+      environmentalData: null,
+      error: "Internal server error"
+    });
   }
 });
+
 
 
 function parseAddress(address) {

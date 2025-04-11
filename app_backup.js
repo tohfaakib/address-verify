@@ -11,10 +11,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 
+app.get('/eventually', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/eventually.html'));
+});
+
+
 
 async function fetchEnvironmentalData(address) {
-  // const SCRAPER_API = `http://localhost:8000/scrape?address=${encodeURIComponent(address)}`;
-  const SCRAPER_API = `http://localhost:8000/scrape?address=3208%20Berkshire%20Way,%20Sacramento,%20California,%2095864`;
+  const SCRAPER_API = `http://localhost:8000/scrape?address=${encodeURIComponent(address)}`;
 
   try {
     const response = await axios.get(SCRAPER_API);
