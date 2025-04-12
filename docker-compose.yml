@@ -1,8 +1,9 @@
 services:
-  address_verify:
-    container_name: address_verify
+  address_verify_test:
+    container_name: address_verify_test
     build: .
-    image: address_verify
+    image: address_verify_test
     ports:
-      - "3000:3000"  # Node.js app
-      - "8000:8000"  # Python app
+      - "3001:3000"  # Node.js only exposed
+    expose:
+      - "8000"       # Python internal only
