@@ -1,5 +1,5 @@
 # ---------- Base image for Selenium + Chromium ----------
-    FROM python:3.9-buster AS base
+    FROM python:3.9-slim-bookworm AS base
 
     # Set environment variables
     ENV PYTHONUNBUFFERED=1 \
@@ -7,7 +7,9 @@
         CHROME_BIN=/usr/bin/chromium
     
     # Install system dependencies
-    RUN apt-get update -y && apt-get install -y \
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
         build-essential \
         git \
         chromium \
@@ -20,7 +22,8 @@
         ca-certificates \
         gnupg \
         supervisor \
-        && rm -rf /var/lib/apt/lists/*
+    ; \
+    rm -rf /var/lib/apt/lists/*
     
     # Create required dirs
     RUN mkdir -p /usr/local/uc && cp /usr/bin/chromedriver /usr/local/uc/chromedriver
@@ -51,3 +54,5 @@
     # ---------- Start supervisor ----------
     CMD ["/usr/bin/supervisord"]
     
+    # If you truly need chromedriver copied elsewhere:
+RUN mkdir -p /usr/local/uc && cp /usr/bin/chromedriver /usr/local/uc/chromedriver
