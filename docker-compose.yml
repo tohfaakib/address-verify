@@ -6,3 +6,4 @@ services:
     ports:
       - "3000:3000"  # Node.js app
       - "8000:8000"  # Python app
+    restart: unless-stopped
