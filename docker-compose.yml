@@ -3,7 +3,11 @@ services:
     container_name: address_verify
     build: .
     image: address_verify
+    env_file:
+      - .env
     ports:
       - "3000:3000"  # Node.js app
       - "8000:8000"  # Python app
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
     restart: unless-stopped

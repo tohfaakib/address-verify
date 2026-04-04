@@ -1,13 +1,14 @@
-import random
 import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.select import Select
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+
+
+SUMMARY_TIMEOUT = 60  # Max seconds to wait for summary button
 
 
 def create_driver(headless=True):
@@ -18,11 +19,11 @@ def create_driver(headless=True):
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080")
-    options.binary_location = "/usr/bin/chromium"  # system-installed Chromium
+    options.binary_location = "/usr/bin/chromium"
 
-    # Use preinstalled chromedriver
     service = Service("/usr/local/uc/chromedriver")
     driver = webdriver.Chrome(service=service, options=options)
+    driver.set_page_load_timeout(30)
     return driver
 
 
@@ -72,18 +73,19 @@ def is_summary_enabled(driver):
 
 
 def wait_and_open_summary(driver):
+    start = time.time()
     while True:
         if is_summary_enabled(driver):
             break
+        if time.time() - start > SUMMARY_TIMEOUT:
+            raise TimeoutError(f"Summary button not enabled after {SUMMARY_TIMEOUT}s")
         time.sleep(1)
 
     close_popup(driver, "details-popup-close-icon")
     time.sleep(0.1)
-    driver.execute_script(
-        "arguments[0].scrollIntoView();",
-        driver.find_element(By.XPATH, "//a[contains(text(),'Summary')]")
-    )
-    driver.find_element(By.XPATH, "//a[contains(text(),'Summary')]").click()
+    summary_el = driver.find_element(By.XPATH, "//a[contains(text(),'Summary')]")
+    driver.execute_script("arguments[0].scrollIntoView();", summary_el)
+    summary_el.click()
 
 
 def get_summary_value_by_label(driver, label_text):
