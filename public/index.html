@@ -266,6 +266,18 @@
       border: 0.2rem solid rgba(66, 153, 225, 0.2);
       border-top: 0.2rem solid var(--accent-color);
     }
+
+    /* Street View */
+    .streetview-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+    }
+
+    /* WUI badge */
+    .wui-yes { color: #e53e3e; font-weight: 600; }
+    .wui-no { color: var(--primary-color); font-weight: 600; }
   </style>
 
   <script>
@@ -287,7 +299,9 @@
       });
     };
 
+    window.__GMAP_KEY = '';
     fetch('/config').then(r => r.json()).then(cfg => {
+      window.__GMAP_KEY = cfg.googleMapsApiKey;
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${cfg.googleMapsApiKey}&libraries=places&callback=initAutocomplete`;
       script.async = true;
@@ -548,9 +562,33 @@
           const g = melissa_global && melissa_global.Records ? melissa_global.Records[0] : {};
           const p = propertyData.Records[0];
 
+          // New data
+          const fd = all_data.fire_district || {};
+          const eu = all_data.electric_utility || {};
+          const gu = all_data.gas_utility || {};
+          const elev = all_data.elevation || {};
+          const wui = all_data.wui || {};
+          const address = addressInput.value.trim();
+
+          // Street View URL
+          const svUrl = window.__GMAP_KEY
+            ? `https://maps.googleapis.com/maps/api/streetview?size=900x400&location=${encodeURIComponent(address)}&key=${window.__GMAP_KEY}&return_error_code=true`
+            : '';
+
+          // WUI display
+          const wuiHtml = wui.in_wui
+            ? `<span class="wui-yes">Yes — ${wui.severity || 'Unknown Severity'}</span>`
+            : `<span class="wui-no">No</span>`;
+
+          // Elevation display
+          const groundFt = elev.ground_ft != null ? elev.ground_ft.toFixed(1) + ' ft' : 'N/A';
+          const bfeFt = elev.bfe_ft != null ? elev.bfe_ft.toFixed(1) + ' ft' : 'N/A';
+          const freeboardFt = elev.freeboard_ft != null ? elev.freeboard_ft.toFixed(1) + ' ft' : 'N/A';
+
           resultDiv.style.display = "block";
           resultDiv.innerHTML = `
             <div class="results-container">
+              ${svUrl ? `<img class="streetview-img" src="${svUrl}" alt="Street View" onerror="this.style.display='none'">` : ''}
               <div class="results-header">
                 <h2 class="results-title">Jurisdiction: ${municipalType}</h2>
               </div>
@@ -590,6 +628,31 @@
 
                 <div class="results-section">
                   <h3 class="section-title">
+                    <span class="material-icons">local_fire_department</span>
+                    Jurisdiction & Utilities
+                  </h3>
+                  <div class="data-grid">
+                    <div class="data-item">
+                      <div class="data-label">Fire District</div>
+                      <div class="data-value">${fd.name || "Not Found"}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">Electric Utility</div>
+                      <div class="data-value">${eu.name || "Not Found"}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">Gas Utility</div>
+                      <div class="data-value">${gu.name || "Not Found"}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">Wildland-Urban Interface</div>
+                      <div class="data-value">${wuiHtml}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="results-section">
+                  <h3 class="section-title">
                     <span class="material-icons">home</span>
                     Property Information
                   </h3>
@@ -621,6 +684,31 @@
                     <div class="data-item">
                       <div class="data-label">Total Rooms</div>
                       <div class="data-value">${p.IntRoomInfo.RoomsCount}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="results-section">
+                  <h3 class="section-title">
+                    <span class="material-icons">terrain</span>
+                    Elevation & Flood
+                  </h3>
+                  <div class="data-grid">
+                    <div class="data-item">
+                      <div class="data-label">Ground Elevation</div>
+                      <div class="data-value">${groundFt}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">Base Flood Elevation (BFE)</div>
+                      <div class="data-value">${bfeFt}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">Freeboard (Ground - BFE)</div>
+                      <div class="data-value">${freeboardFt}</div>
+                    </div>
+                    <div class="data-item">
+                      <div class="data-label">FEMA Flood Zone</div>
+                      <div class="data-value">${elev.flood_zone || "N/A"}</div>
                     </div>
                   </div>
                 </div>
