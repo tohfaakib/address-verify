@@ -157,7 +157,7 @@
     .success { background-color: var(--primary-color) !important; }
     .error { background-color: #e53e3e !important; }
 
-    @media (max-width: 600px) {
+    @media (max-width: 1024px) {
       .search-row {
         flex-direction: column;
       }
@@ -269,6 +269,24 @@
   </style>
 
   <script>
+    // Define initAutocomplete globally before loading the Maps API
+    // so the callback works regardless of script load timing
+    window.initAutocomplete = function() {
+      const input = document.getElementById("addressInput");
+      if (!input) return;
+      const autocomplete = new google.maps.places.Autocomplete(input);
+      autocomplete.addListener("place_changed", function () {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+        const city = place.address_components.find(c => c.types.includes("locality"));
+        const zipcode = place.address_components.find(c => c.types.includes("postal_code"));
+        const state = place.address_components.find(c => c.types.includes("administrative_area_level_1"));
+        document.getElementById("cityInput").value = city ? city.long_name : "";
+        document.getElementById("zipcodeInput").value = zipcode ? zipcode.long_name : "";
+        document.getElementById("stateInput").value = state ? state.short_name : "";
+      });
+    };
+
     fetch('/config').then(r => r.json()).then(cfg => {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${cfg.googleMapsApiKey}&libraries=places&callback=initAutocomplete`;
@@ -639,23 +657,7 @@
       }
     }
 
-    function initAutocomplete() {
-      const input = document.getElementById("addressInput");
-      const autocomplete = new google.maps.places.Autocomplete(input);
-
-      autocomplete.addListener("place_changed", function () {
-        const place = autocomplete.getPlace();
-        if (!place.geometry) return;
-
-        const city = place.address_components.find(c => c.types.includes("locality"));
-        const zipcode = place.address_components.find(c => c.types.includes("postal_code"));
-        const state = place.address_components.find(c => c.types.includes("administrative_area_level_1"));
-
-        document.getElementById("cityInput").value = city ? city.long_name : "";
-        document.getElementById("zipcodeInput").value = zipcode ? zipcode.long_name : "";
-        document.getElementById("stateInput").value = state ? state.short_name : "";
-      });
-    }
+    // initAutocomplete is defined in <head> so it's available when the Maps API callback fires
   </script>
 </body>
 </html>
